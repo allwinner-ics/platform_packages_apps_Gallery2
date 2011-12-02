@@ -14,7 +14,8 @@ LOCAL_PACKAGE_NAME := Gallery2
 LOCAL_OVERRIDES_PACKAGES := Gallery Gallery3D GalleryNew3D
 
 # We mark this out until Mtp and MediaMetadataRetriever is unhidden.
-LOCAL_SDK_VERSION := current
+#LOCAL_SDK_VERSION := current
+LOCAL_CERTIFICATE := platform
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 

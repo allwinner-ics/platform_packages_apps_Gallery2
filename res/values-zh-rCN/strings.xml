@@ -162,4 +162,78 @@
     <string name="group_by" msgid="4308299657902209357">"分组依据"</string>
     <string name="settings" msgid="1534847740615665736">"设置"</string>
     <string name="add_account" msgid="4271217504968243974">"添加帐户"</string>
+
+
+
+    <string name="title_label" >"视频设置"</string>
+
+    <string name="gate_title" >"字幕开关"</string>
+    <string name="select_title" >"字幕选择"</string>
+    <string name="charset_title" >"字幕编码"</string>
+    <string name="color_title" >"字幕颜色"</string>
+    <string name="charsize_title" >"字幕字体大小"</string>
+    <string name="offset_title" >"字幕偏移"</string>
+    <string name="delay_title" >"字幕延时"</string>
+    <string name="track_title" >"音轨"</string>
+    <string name="zoom_title" >"缩放模式"</string>
+    <string name="mode3d_title" >"3D模式"</string>
+
+    <string name="return_button" >"返回"</string>
+
+  <string-array name="screen_select_entries">
+    <item >"无字幕"</item>
+  </string-array>
+    <string-array name="screen_charset_entries">
+    <item>"UTF8"</item>
+    <item>"中文"</item>
+    <item>"繁体中文"</item>
+    <item>"俄文"</item>
+    <item>"中欧"</item>
+    <item>"西欧语言"</item>
+    <item>"日文"</item>
+    <item>"UTF16BE"</item>
+    <item>"UTF16LE"</item>
+  </string-array>
+
+    <string-array name="screen_offset_entries">
+        <item>"0"</item>
+        <item>"10"</item>
+        <item>"20"</item>
+        <item>"30"</item>
+        <item>"40"</item>
+        <item>"50"</item>
+        <item>"60"</item>
+    </string-array>
+
+    <string-array name="screen_3d_entries">
+        <item>"2D显示原图"</item>
+        <item>"2D显示左半图"</item>
+        <item>"2D显示右半图"</item>
+        <item>"2D显示上半图"</item>
+        <item>"2D显示下半图"</item>
+        <item>"3D左右"</item>
+        <item>"3D上下"</item>
+        <item>"3D行交错"</item>
+        <item>"分色红蓝"</item>
+        <item>"分色红绿"</item>
+        <item>"分色红青"</item>
+        <item>"分色全色"</item>
+        <item>"分色半色"</item>
+        <item>"分色最优"</item>
+        <item>"分色黄蓝"</item>
+    </string-array>
+
+    <string-array name="screen_zoom_entries">
+        <!-- Slide show zoom mode -->
+        <item>"全屏(按视频比例)"</item>
+        <item>"全屏(按屏幕比例)"</item>
+        <item>"原始大小"</item>
+        <item>"4 / 3"</item>
+        <item>"16 / 9"</item>
+    </string-array>
+
+	<string-array name="screen_track_entries">
+		<item >"无音轨"</item>
+	</string-array>
+    <string name="system_battery">"电量:"</string>
 </resources>

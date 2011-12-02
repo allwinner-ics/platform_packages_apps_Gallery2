@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.gallery3d.app;
+package com.android.gallery3d.app; 
 
 import com.android.gallery3d.R;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Video.VideoColumns;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ListView;
 
 /**
  * This activity plays a video from a specified URI.
@@ -38,29 +35,27 @@ import android.view.WindowManager;
 public class MovieActivity extends Activity {
     @SuppressWarnings("unused")
     private static final String TAG = "MovieActivity";
-
-    private MoviePlayer mPlayer;
+    
+    private MovieViewControl mControl;
     private boolean mFinishOnCompletion;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
         setContentView(R.layout.movie_view);
         View rootView = findViewById(R.id.root);
         Intent intent = getIntent();
-        initializeActionBar(intent);
-        mFinishOnCompletion = intent.getBooleanExtra(
-                MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
-        mPlayer = new MoviePlayer(rootView, this, intent.getData(), savedInstanceState,
-                !mFinishOnCompletion) {
+    	mFinishOnCompletion = false;//intent.getBooleanExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
+        mControl = new MovieViewControl(rootView, this, intent.getData()) {
             @Override
             public void onCompletion() {
                 if (mFinishOnCompletion) {
                     finish();
+                } else {
+                    super.onCompletion();
+                    if( super.toQuit() ){
+                        finish();
+                    }
                 }
             }
         };
@@ -75,39 +70,7 @@ public class MovieActivity extends Activity {
         Window win = getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
         winParams.buttonBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF;
-        winParams.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
         win.setAttributes(winParams);
-    }
-
-    private void initializeActionBar(Intent intent) {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,
-                ActionBar.DISPLAY_HOME_AS_UP);
-        String title = intent.getStringExtra(Intent.EXTRA_TITLE);
-        if (title == null) {
-            Cursor cursor = null;
-            try {
-                cursor = getContentResolver().query(intent.getData(),
-                        new String[] {VideoColumns.TITLE}, null, null, null);
-                if (cursor != null && cursor.moveToNext()) {
-                    title = cursor.getString(0);
-                }
-            } catch (Throwable t) {
-                Log.w(TAG, "cannot get title from: " + intent.getDataString(), t);
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        }
-        if (title != null) actionBar.setTitle(title);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -124,28 +87,20 @@ public class MovieActivity extends Activity {
                 .abandonAudioFocus(null);
         super.onStop();
     }
-
-    @Override
     public void onPause() {
-        mPlayer.onPause();
+        mControl.onPause();
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        mPlayer.onResume();
+        mControl.onResume();
         super.onResume();
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mPlayer.onSaveInstanceState(outState);
-    }
-
+    
     @Override
     public void onDestroy() {
-        mPlayer.onDestroy();
-        super.onDestroy();
+        mControl.onDestroy();
+    	super.onDestroy();
     }
 }

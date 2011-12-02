@@ -415,4 +415,84 @@
 
     <!-- The title of menu item where user can add a new account -->
     <string name="add_account">Add account</string>
+
+
+
+    <!-- The subtitle setting title -->
+    <string name="title_label">Video settings</string>
+
+    <string name="gate_title" >"Subtilte gate"</string>
+    <string name="select_title" >"Subtilte select"</string>
+    <string name="charset_title" >"Subtilte charset"</string>
+    <string name="color_title" >"Subtitle color"</string>
+    <string name="charsize_title" >"Subtilte char size"</string>
+    <string name="offset_title" >"Subtilte offset"</string>
+    <string name="delay_title" >"Subtilte delay"</string>
+    <string name="zoom_title" >"Zoom mode"</string>
+    <string name="mode3d_title" >"3D mode"</string>
+    <string name="track_title" >"video track"</string>
+
+    <string name="return_button" >"Return"</string>
+
+    <string-array name="screen_select_entries">
+        <!-- Slide show no subtitle -->
+        <item>NO subtitle</item>
+    </string-array>
+
+    <!-- Slide show subtitle charset -->
+    <string-array name="screen_charset_entries">
+        <item>UTF8</item>
+        <item>GBK</item>
+        <item>BIG5</item>
+        <item>KIO8_R</item>
+        <item>CP1250</item>
+        <item>ISO_8859_1</item>
+        <item>SJIS</item>
+        <item>UTF16BE</item>
+        <item>UTF16LE</item>
+    </string-array>
+
+    <!-- Slide show subtitle offset -->
+    <string-array name="screen_offset_entries">
+        <item>0</item>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+    </string-array>
+
+    <string-array name="screen_3d_entries">
+        <item>"2D show custom"</item>
+        <item>"2D show half of left"</item>
+        <item>"2D show half of right"</item>
+        <item>"2D show half of top"</item>
+        <item>"2D show half of bottom"</item>
+        <item>"3D left and right"</item>
+        <item>"3D top and bottom"</item>
+        <item>"3D line interlace"</item>
+        <item>"red and blue"</item>
+        <item>"red and green"</item>
+        <item>"red and cyan"</item>
+        <item>"all color"</item>
+        <item>"half color"</item>
+        <item>"best color"</item>
+        <item>"yellow and blue"</item>
+    </string-array>
+    
+    <string-array name="screen_zoom_entries">
+        <!-- Slide show zoom mode -->
+        <item>"Full screen video ratio"</item>
+        <item>"Full screen screen ratio"</item>
+        <item>"Origin size"</item>
+        <item>"4 / 3"</item>
+        <item>"16 / 9"</item>
+    </string-array>
+    
+    <string-array name="screen_track_entries">
+        <!-- Slide show no track -->
+        <item>NO track</item>
+    </string-array>
+	<string name="system_battery">"Battery:</string>
 </resources>
