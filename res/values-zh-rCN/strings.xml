@@ -16,7 +16,32 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="1928079047368929634">"图库"</string>
+    <string name="app_name" msgid="1928079047368929634">"超清播放器"</string>
+
+    
+    <string name="connect_net_fail_message">"连接不上网络，请检查网络。检查更新失败"</string>
+	<string name="update_title">"应用更新提示"</string>
+	<string name="update_massege">"发现应用新版本，是否立即更新？"</string>
+	<string name="update_now">"确定"</string>
+	<string name="update_late">"取消"</string>
+	<string name="current_version">"当前版本： %s"</string>
+	<string name="new_version">"最新版本：%s"</string>
+	<string name="download_massege">"正在下载请稍候..."</string>
+	<string name="fail_massege">下载失败，请检查网络</string>
+	<string name="allow_update_notice">打开更新提示</string>
+	<string name="allow_update_massege">系统已设置为允许更新提示</string>
+	<string name="close_update_notice">关闭更新提示</string>
+	<string name="close_update_massege">系统已设置为关闭更新提示</string>
+	<string name="dialog_update_title">安装提示！</string>
+	<string name="dialog_update_masege">发现一个功能更加强大的播放器，是否要下载安装?</string>
+	<string name="dialog_update_checkbox">不再提示</string>
+	<string name="progress_update_massege">正在下载请稍后...</string>
+	<string name="install_massege">上次下载的apk没有安装，现在是否需要安装？</string>
+	<string name="install_title">安装提示</string>
+	<string name="download_fail_massage">下载失败，请检查网络</string>
+    
+
+
     <string name="gadget_title" msgid="259405922673466798">"相框"</string>
     <string name="details_ms" msgid="940634969189855292">"%1$02d:%2$02d"</string>
     <string name="details_hms" msgid="3215779248094151255">"%1$d:%2$02d:%3$02d"</string>

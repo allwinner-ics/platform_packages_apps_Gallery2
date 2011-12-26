@@ -107,6 +107,7 @@ VideoView.OnSubFocusItems{
 	
     private long mResumeableTime = Long.MAX_VALUE;
     private int mVideoPosition = 0;
+    private int mCurrentTrackSave, mCurrentSubSave;		//used for video onPause/onResume
 	private boolean mOnPause = false;
 	int mBookMark, mDuration;
     private int mCurrentIndex = 0;
@@ -647,17 +648,23 @@ VideoView.OnSubFocusItems{
         	mControlFocus = EDITOR_SUBCHARSET;
         	
         	mDialogTitle.setText(R.string.charset_title);
-        	mListFocus = sp.getInt(EDITOR_SUBCHARSET, 0);
+        	mListFocus = 0;
+        	String currentCharset = mVideoView.getSubCharset();
+        	String[] CharsetList = mRes.getStringArray(R.array.screen_charset_entries);
+        	for(int i = 0; i < CharsetList.length; i++) {
+        		if(currentCharset.equalsIgnoreCase(CharsetList[i])) {
+        			mListFocus = i;
+        			break;
+        		}
+        	}
+        	
         	ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, 
         			R.layout.simple_list_item_single_choice, 
-        			mRes.getStringArray(R.array.screen_charset_entries));
+        			CharsetList);
         	mListView.setAdapter(adapter);
             mListView.setItemChecked(mListFocus, true);
             mListView.smoothScrollToPosition(mListFocus);
         	mListDialog.show();
-        	
-        	editor.putInt(EDITOR_SUBCHARSET, mListFocus);
-			editor.commit(); 
         }
     };
 
@@ -852,6 +859,20 @@ VideoView.OnSubFocusItems{
 		/* zoom mode */
 		int zoom = sp.getInt(EDITOR_ZOOM, 0);
 		mVideoView.setZoomMode(zoom);
+		
+		/* resume the current sub & track */
+		if(mOnPause) {
+			mOnPause = false;
+			SubInfo[] subInfo = mVideoView.getSubList();
+			if(subInfo != null && mCurrentSubSave > 0 && mCurrentSubSave < subInfo.length) {
+				mVideoView.switchSub(mCurrentSubSave);
+			}
+			
+			TrackInfo[] trackInfo = mVideoView.getTrackList();
+			if(trackInfo != null && mCurrentTrackSave > 0 && mCurrentTrackSave < trackInfo.length) {
+				mVideoView.switchTrack(mCurrentTrackSave);
+			}
+		}
 }
     
     private static boolean uriSupportsBookmarks(Uri uri) {
@@ -887,6 +908,8 @@ VideoView.OnSubFocusItems{
     public void onPause() {
         mOnPause = true;
         mHandler.removeCallbacksAndMessages(null);
+        mCurrentTrackSave = mVideoView.getCurTrack();
+        mCurrentSubSave = mVideoView.getCurSub();
         mResumeableTime = System.currentTimeMillis() + RESUMEABLE_TIMEOUT;
         mVideoPosition = mVideoView.getCurrentPosition();
         // current time > 10s and save current position
@@ -909,7 +932,6 @@ VideoView.OnSubFocusItems{
 
     public void onResume() {
         if (mOnPause) {
-            mOnPause = false;
             mVideoView.seekTo(mVideoPosition);
             mVideoView.resume();
 

@@ -16,6 +16,9 @@
 
 package com.android.gallery3d.app;
 
+import com.android.gallery3d.app.Gallery;
+
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +31,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.content.res.Resources;
+import android.content.SharedPreferences;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+
+
+
+
+
+
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.common.Utils;
@@ -378,7 +396,7 @@ public class AlbumSetPage extends ActivityState implements
 
         final boolean inAlbum = mActivity.getStateManager().hasStateClass(
                 AlbumPage.class);
-
+   
         if (mGetContent) {
             inflater.inflate(R.menu.pickup, menu);
             int typeBits = mData.getInt(
@@ -407,13 +425,11 @@ public class AlbumSetPage extends ActivityState implements
                 } else {
                     selectItem.setTitle(R.string.select_group);
                 }
-            }
-
+            }            
             MenuItem switchCamera = menu.findItem(R.id.action_camera);
             if (switchCamera != null) {
                 switchCamera.setVisible(GalleryUtils.isCameraAvailable(activity));
-            }
-
+            }                      
             actionBar.setSubtitle(mSubtitle);
         }
         return true;
@@ -467,6 +483,49 @@ public class AlbumSetPage extends ActivityState implements
                 activity.startActivity(new Intent(activity, GallerySettings.class));
                 return true;
             }
+			case R.id.action_update:{
+				
+				Context m=activity.getBaseContext();				
+				//SharedPreferences mableUpdate=m.getSharedPreferences("ABLE_UPDATE",m.MODE_PRIVATE);
+    	        SharedPreferences.Editor mEditor=Gallery.mableUpdate.edit();
+				
+                LayoutInflater inflater = activity.getLayoutInflater();
+                View mView = inflater.inflate(R.layout.manage_update_bar, null);
+				final FrameLayout layout = (FrameLayout) activity.findViewById(R.id.footer);
+                layout.addView(mView);
+				TextView mText=(TextView)mView.findViewById(R.id.update_massege);
+                String mstr=Gallery.mableUpdate.getString("UPDATE", null);
+				if(mstr.equals("ABLE")){
+                   
+                    mEditor.putString("UPDATE","UNABLE");
+					mEditor.commit();
+					item.setTitle(R.string.allow_update_notice);
+					//Toast.makeText(activity, Gallery.mableUpdate.getString("UPDATE", null),Toast.LENGTH_SHORT).show();
+					
+					mText.setText(R.string.close_update_massege);
+					//Toast.makeText(activity, "It's unable to check update",Toast.LENGTH_SHORT).show(); 
+				}else if(mstr.equals("UNABLE")){
+                         mEditor.putString("UPDATE","ABLE");
+                         mEditor.commit();
+						 item.setTitle(R.string.close_update_notice);
+						 
+						 mText.setText(R.string.allow_update_massege);
+						 //Toast.makeText(activity, Gallery.mableUpdate.getString("UPDATE", null),Toast.LENGTH_SHORT).show(); 
+					     //Toast.makeText(activity, "It's able to check update",Toast.LENGTH_SHORT).show(); 
+				      }		  
+				 //Toast.makeText(activity,Gallery.mableUpdate.getString("UPDATE", null) ,Toast.LENGTH_SHORT).show(); 	
+				 layout.setVisibility(View.VISIBLE);
+				 mView.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub					
+							layout.removeAllViews();	
+						}
+					});
+				 
+				return true;
+			}
             default:
                 return false;
         }
