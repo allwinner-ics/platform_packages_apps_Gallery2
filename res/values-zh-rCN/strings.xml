@@ -231,21 +231,28 @@
     </string-array>
 
     <string-array name="screen_3d_entries">
-        <item>"2D显示原图"</item>
         <item>"2D显示左半图"</item>
-        <item>"2D显示右半图"</item>
         <item>"2D显示上半图"</item>
-        <item>"2D显示下半图"</item>
+        <item>"2D显示原图"</item>
         <item>"3D左右"</item>
         <item>"3D上下"</item>
+        <item>"3D交错"</item>
         <item>"3D行交错"</item>
-        <item>"分色红蓝"</item>
-        <item>"分色红绿"</item>
-        <item>"分色红青"</item>
-        <item>"分色全色"</item>
-        <item>"分色半色"</item>
-        <item>"分色最优"</item>
-        <item>"分色黄蓝"</item>
+       <!-- <item>"3D列交错"</item> -->
+        <item>"左右分色(红蓝)"</item>
+        <item>"左右分色(红绿)"</item>
+        <item>"左右分色(红青)"</item>
+        <item>"左右分色(全色)"</item>
+        <item>"左右分色(半色)"</item>
+        <item>"左右分色(最佳)"</item>
+        <item>"左右分色(黄蓝)"</item>
+        <item>"上下分色(红蓝)"</item>
+        <item>"上下分色(红绿)"</item>
+        <item>"上下分色(红青)"</item>
+        <item>"上下分色(全色)"</item>
+        <item>"上下分色(半色)"</item>
+        <item>"上下分色(最佳)"</item>
+        <item>"上下分色(黄蓝)"</item>
     </string-array>
 
     <string-array name="screen_zoom_entries">

@@ -306,91 +306,91 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
             mMediaPlayer.setDisplay(mSurfaceHolder);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
-            {
-                int inputType;
-                int anaglagh;
-                
-                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_2D;
-                next : {
-                    String scheme = mUri.getScheme();
-                    if(scheme == null || !scheme.equals("file"))
-                        break next;
-                    String path = mUri.getPath();
-                    if(path == null)
-                        break next;
-                    String[] substr = path.split("\\.");
-                    if(substr == null)
-                        break next;
-
-                    int j;
-                    for(j = 0; j < substr.length; j++){
-                        Log.d(TAG, "substr " + j + " is " + substr[j]);
-                        if(substr[j].equals("FS")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL;
-                            break;
-                        }else if(substr[j].equals("TBH")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF ;
-                            break;
-                        }else if(substr[j].equals("TBF")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL;
-                            break;
-                        }else if(substr[j].equals("BTH")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF;
-                            break;
-                        }else if(substr[j].equals("BTF")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL;
-                            break;
-                        }else if(substr[j].equals("LRH")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
-                            break;
-                        }else if(substr[j].equals("SBS")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
-                            break;
-                        }else if(substr[j].equals("LRF")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL;
-                            break;
-                        }else if(substr[j].equals("RLH")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF ;
-                            break;
-                        }else if(substr[j].equals("RLF")){
-                            inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL;
-                            break;
-                        }
-                    }
-                }
-                
-                if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF)
-                    anaglagh = MediaPlayer.ANAGLAGH_TYPE_OPTIMIZED;
-                else
-                    anaglagh = MediaPlayer.ANAGLAGH_TYPE_DISABLE;
-                    
-                int settingOutputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_2D_ORGINAL;
-                int outputType;
-                if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL)
-                   outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_TOP_BOTTOM;
-                else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF
-                   || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL )
-                   outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
-                else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL )
-                   outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
-                else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED )
-                   outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED;
-                else 
-                   outputType = settingOutputType;
-                   
-                mMediaPlayer.setAnaglaghType(anaglagh);
-                mMediaPlayer.setInputDimensionType(inputType);
-                mMediaPlayer.setOutputDimensionType(outputType);
-
-            }
+            //{
+            //    int inputType;
+            //    int anaglagh;
+            //    
+            //    inputType = MediaPlayer.INPUT_DIMENSION_TYPE_2D;
+            //    next : {
+            //        String scheme = mUri.getScheme();
+            //        if(scheme == null || !scheme.equals("file"))
+            //            break next;
+            //        String path = mUri.getPath();
+            //        if(path == null)
+            //            break next;
+            //        String[] substr = path.split("\\.");
+            //        if(substr == null)
+            //            break next;
+            //
+            //        int j;
+            //        for(j = 0; j < substr.length; j++){
+            //            Log.d(TAG, "substr " + j + " is " + substr[j]);
+            //            if(substr[j].equals("FS")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL;
+            //                break;
+            //            }else if(substr[j].equals("TBH")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF ;
+            //                break;
+            //            }else if(substr[j].equals("TBF")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL;
+            //                break;
+            //            }else if(substr[j].equals("BTH")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF;
+            //                break;
+            //            }else if(substr[j].equals("BTF")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL;
+            //                break;
+            //            }else if(substr[j].equals("LRH")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
+            //                break;
+            //            }else if(substr[j].equals("SBS")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
+            //                break;
+            //            }else if(substr[j].equals("LRF")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL;
+            //                break;
+            //            }else if(substr[j].equals("RLH")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF ;
+            //                break;
+            //            }else if(substr[j].equals("RLF")){
+            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    
+            //    if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF)
+            //        anaglagh = MediaPlayer.ANAGLAGH_TYPE_OPTIMIZED;
+            //    else
+            //        anaglagh = MediaPlayer.ANAGLAGH_TYPE_DISABLE;
+            //        
+            //    int settingOutputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_2D_ORGINAL;
+            //    int outputType;
+            //    if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL)
+            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_TOP_BOTTOM;
+            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF
+            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL )
+            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
+            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL )
+            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
+            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED )
+            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED;
+            //    else 
+            //       outputType = settingOutputType;
+            //       
+            //    mMediaPlayer.setAnaglaghType(anaglagh);
+            //    mMediaPlayer.setInputDimensionType(inputType);
+            //    mMediaPlayer.setOutputDimensionType(outputType);
+            //
+            //}
 
             mMediaPlayer.prepareAsync();
             // we don't set the target state here either, but preserve the
@@ -1113,6 +1113,65 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
         Log.d(TAG, "start getCurTrack ");
     	return mMediaPlayer.getCurTrack();
     }
+
+    /**
+     * set the anaglagh type of the output.
+     * <p>
+     * 
+	 * @param type the anaglagh type of the output
+     * @return ==0 means successful, !=0 means failed.
+     */
+    public int setAnaglaghType(int type) {
+    	if(mMediaPlayer == null)
+    		return -1;
+    	
+        Log.d(TAG, "start setAnaglaghType ");
+    	return mMediaPlayer.setAnaglaghType(type);
+    }
+
+    /**
+     * get the anaglagh type of the output.
+     * <p>
+     * 
+     * @return the anaglagh type of the output. -1 means failed.
+     */
+    public int getAnaglaghType() {
+    	if(mMediaPlayer == null)
+    		return -1;
+    	
+        Log.d(TAG, "start getAnaglaghType ");
+    	return mMediaPlayer.getAnaglaghType();
+    }
+    
+    /**
+     * set the dimension type of the source file.
+     * <p>
+     * 
+	 * @param type the  3D picture format of the source file
+     * @return ==0 means successful, !=0 means failed.
+     */
+    public int setInputDimensionType(int type) {
+    	if(mMediaPlayer == null)
+    		return -1;
+    	
+        Log.d(TAG, "start setInputDimensionType ");
+    	return mMediaPlayer.setInputDimensionType(type);
+    }
+    
+    /**
+     * get the dimension type of the source file.
+     * <p>
+     * 
+     * @return the 3D picture format of the source file. -1 means failed.
+     */
+    public int getInputDimensionType() {
+    	if(mMediaPlayer == null)
+    		return -1;
+    	
+        Log.d(TAG, "start getInputDimensionType ");
+    	return mMediaPlayer.getInputDimensionType();
+    }
+
     /**
      * set the dimension type of the output.
      * <p>

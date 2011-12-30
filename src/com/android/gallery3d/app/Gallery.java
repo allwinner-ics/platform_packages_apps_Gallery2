@@ -629,7 +629,6 @@ public final class Gallery extends AbstractGalleryActivity {
 				name=info.applicationInfo.className;
 			} catch (NameNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 				Log.i(TAG,packagename+" is not exist");
 				return false;
 			}

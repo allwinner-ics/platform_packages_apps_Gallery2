@@ -214,21 +214,23 @@ public class CheckUpdate extends Service {
 		String FIRMWARE;
 		FIRMWARE=Build.FIRMWARE;
 		Log.v(TAG,"Build.FIRMWARE="+FIRMWARE);
-		FIRMWARE=FIRMWARE.replace(".","");
-
 		if(FIRMWARE.equals("unknown")){
 			Log.v(TAG,"The firmware is unkonwn");
 			return;
 
 		}
+		FIRMWARE=getNumber(FIRMWARE);
 		int num=textInfo.discoverNew();
 		if(num!=-1){
           Log.v(TAG,"find new apk to download");
 		  scope=textInfo.getScope(num);
 		  release=textInfo.getRelease(num);
 		  Log.v(TAG,"release="+release);
-		  release=release.replace(".","");	 
-          if(Integer.parseInt(FIRMWARE)*100<Integer.parseInt(release)*100){
+		  release=getNumber(release);
+		  if(release.toString().equals("")||FIRMWARE.toString().equals("")) {
+            Log.v(TAG,"Can know the release or FIRMWARE");
+			return;}
+          if(Integer.parseInt(FIRMWARE)<Integer.parseInt(release)){
               Log.v(TAG,"The FIRMWARE is to low");
 			  return;
 		  }
@@ -305,6 +307,18 @@ public class CheckUpdate extends Service {
     	
 		return shareNum;
     	
+	}
+	public String getNumber(String str){
+		StringBuilder sb = new StringBuilder();
+    	for (int i = 0; i < str.length(); i++) {
+    		char c = str.charAt(i);
+    		if (c <= 57 && c >= 48) {
+    		sb.append(c);
+    		}
+    		}
+    	return sb.toString();
+    	
+		
 	}
 	public boolean TimeTask(){
         

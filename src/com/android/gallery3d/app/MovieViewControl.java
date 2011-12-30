@@ -124,7 +124,7 @@ VideoView.OnSubFocusItems{
     private TextView mDialogTitle;
     private ListView mListView;
     private String mControlFocus = null;
-    private int mListFocus = 0;
+    private int mListFocus = 0, m3DFocus = 2;
     
     /* seek bar param */
 	private TextView mCharsizeScheduleText, mDelayScheduleText;
@@ -551,13 +551,9 @@ VideoView.OnSubFocusItems{
         	}
         	else if(mControlFocus.equals(EDITOR_MODE3D)) {
         		/* 3D mode */
-        		ret = mVideoView.setOutputDimensionType(position); 
-        		if(ret == 0) {
-        			mListFocus = position;
-        			Log.i(TAG, "*********** change the 3D mode focus to: "+mListFocus);
-        		} else {
-        			Log.w(TAG, "*********** change the 3D mode failed !");
-        		}
+    			mListFocus = position;
+    			m3DFocus = position;
+        		set3DMode(position);
         	}
         	else if(mControlFocus.equals(EDITOR_ZOOM)) {
         		/* zoom mode */
@@ -571,6 +567,90 @@ VideoView.OnSubFocusItems{
 		}
     };
     
+    private void set3DMode(int position) {
+    	int[] listValue = mRes.getIntArray(R.array.screen_3d_values);
+    	int crrentValue = listValue[position];
+    	if(crrentValue == 0) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+			mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_HALF_PICTURE);
+    	} else if(crrentValue == 1) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+			mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_HALF_PICTURE);
+    	} else if(crrentValue == 2) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_2D);
+    	} else if(crrentValue == 3) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    	} else if(crrentValue == 4) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    	} else if(crrentValue == 5) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_DOUBLE_STREAM);
+    	} else if(crrentValue == 6) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_LINE_INTERLEAVE);
+    	}/* else if(crrentValue == 7) {
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_COLUME_INTERLEAVE);
+    	}*/ else if(crrentValue == 8) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_BLUE);
+    	} else if(crrentValue == 9) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_GREEN);
+    	} else if(crrentValue == 10) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_CYAN);
+    	} else if(crrentValue == 11) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_COLOR);
+    	} else if(crrentValue == 12) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_HALF_COLOR);
+    	} else if(crrentValue == 13) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_OPTIMIZED);
+    	} else if(crrentValue == 14) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_YELLOW_BLUE);
+    	} else if(crrentValue == 15) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_BLUE);
+    	} else if(crrentValue == 16) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_GREEN);
+    	} else if(crrentValue == 17) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_CYAN);
+    	} else if(crrentValue == 18) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_COLOR);
+    	} else if(crrentValue == 19) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_HALF_COLOR);
+    	} else if(crrentValue == 20) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_OPTIMIZED);
+    	} else if(crrentValue == 21) {
+    		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
+    		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_YELLOW_BLUE);
+    	}
+    }
     private View.OnClickListener mSubGateListener = new View.OnClickListener() {
         public void onClick(View v) {
             mMediaController.setHolding(true);
@@ -650,7 +730,7 @@ VideoView.OnSubFocusItems{
         	mDialogTitle.setText(R.string.charset_title);
         	mListFocus = 0;
         	String currentCharset = mVideoView.getSubCharset();
-        	String[] CharsetList = mRes.getStringArray(R.array.screen_charset_entries);
+        	String[] CharsetList = mRes.getStringArray(R.array.screen_charset_values);
         	for(int i = 0; i < CharsetList.length; i++) {
         		if(currentCharset.equalsIgnoreCase(CharsetList[i])) {
         			mListFocus = i;
@@ -778,14 +858,15 @@ VideoView.OnSubFocusItems{
         	mControlFocus = EDITOR_MODE3D;
         	
         	mDialogTitle.setText(R.string.mode3d_title);
-        	int currentMode = mVideoView.getOutputDimensionType();
-        	int[] list = mRes.getIntArray(R.array.screen_3d_values);
-        	for(mListFocus = 0; mListFocus < list.length; mListFocus++) {
-        		if(currentMode == list[mListFocus]) {
-        			break;
-        		}
-        	}
-        	mListFocus = mListFocus%(list.length);
+        	//int currentMode = mVideoView.getOutputDimensionType();
+        	//int[] list = mRes.getIntArray(R.array.screen_3d_values);
+        	//for(mListFocus = 0; mListFocus < list.length; mListFocus++) {
+        	//	if(currentMode == list[mListFocus]) {
+        	//		break;
+        	//	}
+        	//}
+        	//mListFocus = mListFocus%(list.length);
+        	mListFocus = m3DFocus;
         	ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, 
         			R.layout.simple_list_item_single_choice, 
         			mRes.getStringArray(R.array.screen_3d_entries));
@@ -1059,6 +1140,7 @@ VideoView.OnSubFocusItems{
     private void playFile() {
         mWakeLock.acquire();
 
+        m3DFocus = 2;
 		mVideoView.setVideoURI(mUri);
 		mMediaController.setFilePathTextView(mUri.getPath());
         mVideoView.requestFocus();

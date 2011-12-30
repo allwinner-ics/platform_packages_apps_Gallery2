@@ -464,21 +464,28 @@
     </string-array>
 
     <string-array name="screen_3d_entries">
-        <item>"2D show custom"</item>
         <item>"2D show half of left"</item>
-        <item>"2D show half of right"</item>
         <item>"2D show half of top"</item>
-        <item>"2D show half of bottom"</item>
+        <item>"2D show custom"</item>
         <item>"3D left and right"</item>
         <item>"3D top and bottom"</item>
+        <item>"3D interlace"</item>
         <item>"3D line interlace"</item>
-        <item>"red and blue"</item>
-        <item>"red and green"</item>
-        <item>"red and cyan"</item>
-        <item>"all color"</item>
-        <item>"half color"</item>
-        <item>"best color"</item>
-        <item>"yellow and blue"</item>
+       <!-- <item>"3D row interlace"</item> -->
+        <item>"3D Up/Down anglagh(red blue)"</item>
+        <item>"3D Up/Down anglagh(red green)"</item>
+        <item>"3D Up/Down anglagh(red cyan)"</item>
+        <item>"3D Up/Down anglagh(full color)"</item>
+        <item>"3D Up/Down anglagh(half color)"</item>
+        <item>"3D Up/Down anglagh(the best)"</item>
+        <item>"3D Up/Down anglagh(yellow blue)"</item>
+        <item>"3D Left/Right anglagh(red blue)"</item>
+        <item>"3D Left/Right anglagh(red green)"</item>
+        <item>"3D Left/Right anglagh(red cyan)"</item>
+        <item>"3D Left/Right anglagh(full color)"</item>
+        <item>"3D Left/Right anglagh(half color)"</item>
+        <item>"3D Left/Right anglagh(the best)"</item>
+        <item>"3D Left/Right anglagh(yellow blue)"</item>
     </string-array>
     
     <string-array name="screen_zoom_entries">
