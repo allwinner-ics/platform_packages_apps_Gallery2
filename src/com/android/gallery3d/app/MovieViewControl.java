@@ -168,7 +168,7 @@ VideoView.OnSubFocusItems{
         mProgressView = rootView.findViewById(R.id.progress_indicator);
 
         mContext = context;
-        mUri = videoUri;
+        mUri = Uri2File2Uri(videoUri);
         mRes = mContext.getResources();
         sp = mContext.getSharedPreferences(STORE_NAME, Context.MODE_PRIVATE);
 		editor = sp.edit();
@@ -291,6 +291,39 @@ VideoView.OnSubFocusItems{
             deleteBookmark();
         } else {
             mVideoView.start();
+        }
+    }
+    
+    private Uri Uri2File2Uri(Uri videoUri) {
+    	String path = null;
+    	Cursor c = null;
+        IContentProvider mMediaProvider = mContext.getContentResolver().acquireProvider("media");
+        String[] VIDEO_PROJECTION = new String[] { Video.Media.DATA };
+        
+        /* get video file */
+        try {
+			c = mMediaProvider.query(videoUri, VIDEO_PROJECTION, null, null, null);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        if(c != null)
+        {
+            try {
+                while (c.moveToNext()) {
+                    path = c.getString(0);
+                }
+            } finally {
+                c.close();
+                c = null;
+            }
+        }
+        
+        if(path != null) {
+        	return Uri.fromFile(new File(path));
+        }else {
+        	Log.w(TAG,"************ Uri2File2Uri failed ***************");
+        	return videoUri;
         }
     }
     
@@ -579,76 +612,76 @@ VideoView.OnSubFocusItems{
     	} else if(crrentValue == 2) {
     		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_2D);
     	} else if(crrentValue == 3) {
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     	} else if(crrentValue == 4) {
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     	} else if(crrentValue == 5) {
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_DOUBLE_STREAM);
-    	} else if(crrentValue == 6) {
     		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
+    	} else if(crrentValue == 6) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_LINE_INTERLEAVE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     	}/* else if(crrentValue == 7) {
     		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_3D);
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_COLUME_INTERLEAVE);
     	}*/ else if(crrentValue == 8) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_BLUE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 9) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_GREEN);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 10) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_CYAN);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 11) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_COLOR);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 12) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_HALF_COLOR);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 13) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_OPTIMIZED);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 14) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_SIDE_BY_SIDE);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_YELLOW_BLUE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 15) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_BLUE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 16) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_GREEN);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 17) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_RED_CYAN);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 18) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_COLOR);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 19) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_HALF_COLOR);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 20) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_OPTIMIZED);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	} else if(crrentValue == 21) {
     		mVideoView.setInputDimensionType(MediaPlayer.PICTURE_3D_MODE_TOP_TO_BOTTOM);
-    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     		mVideoView.setAnaglaghType(MediaPlayer.ANAGLAGH_YELLOW_BLUE);
+    		mVideoView.setOutputDimensionType(MediaPlayer.DISPLAY_3D_MODE_ANAGLAGH);
     	}
     }
     private View.OnClickListener mSubGateListener = new View.OnClickListener() {

@@ -40,7 +40,7 @@ public class ColorPickerDialog{
         colorLayout.addView(mColorPickerView);
         Button leftButton = (Button)contentView.findViewById(R.id.button1);
         Button rightButton = (Button)contentView.findViewById(R.id.button2);
-        leftButton.setText(R.string.crop_save_text);
+        leftButton.setText(R.string.confirm_button);
         rightButton.setText(R.string.cancel);        
         leftButton.setOnClickListener(new OnClickListener(){
 

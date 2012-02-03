@@ -24,7 +24,7 @@
     	android:orientation="horizontal" android:gravity="center" android:paddingTop="30.0dip">
     	
         <Button android:layout_gravity="left" android:id="@+id/button1" android:layout_width="0.0px" android:layout_height="wrap_content" 
-        	android:layout_weight="1.0" android:text="@string/crop_save_text"/>
+        	android:layout_weight="1.0" android:text="@string/confirm_button"/>
         
         <Button android:layout_gravity="right" android:id="@+id/button2" android:layout_width="0.0px" android:layout_height="wrap_content"
         	android:layout_weight="1.0" android:text="@string/cancel"/>

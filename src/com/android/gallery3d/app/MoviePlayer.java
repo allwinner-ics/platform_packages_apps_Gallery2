@@ -16,11 +16,6 @@
 
 package com.android.gallery3d.app;
 
-import com.android.gallery3d.R;
-import com.android.gallery3d.common.BlobCache;
-import com.android.gallery3d.util.CacheManager;
-import com.android.gallery3d.util.GalleryUtils;
-
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -39,8 +34,12 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.MediaController;
 import android.widget.VideoView;
+
+import com.android.gallery3d.R;
+import com.android.gallery3d.common.BlobCache;
+import com.android.gallery3d.util.CacheManager;
+import com.android.gallery3d.util.GalleryUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -162,7 +161,8 @@ public class MoviePlayer implements
     }
 
     private void showSystemUi(boolean visible) {
-        int flag = visible ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        int flag = visible ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LOW_PROFILE;
         mVideoView.setSystemUiVisibility(flag);
     }
 
@@ -334,6 +334,55 @@ public class MoviePlayer implements
         startVideo();
     }
 
+    // Below are key events passed from MovieActivity.
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        // Some headsets will fire off 7-10 events on a single click
+        if (event.getRepeatCount() > 0) {
+            return isMediaKey(keyCode);
+        }
+
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_HEADSETHOOK:
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                if (mVideoView.isPlaying()) {
+                    pauseVideo();
+                } else {
+                    playVideo();
+                }
+                return true;
+            case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                if (mVideoView.isPlaying()) {
+                    pauseVideo();
+                }
+                return true;
+            case KeyEvent.KEYCODE_MEDIA_PLAY:
+                if (!mVideoView.isPlaying()) {
+                    playVideo();
+                }
+                return true;
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+            case KeyEvent.KEYCODE_MEDIA_NEXT:
+                // TODO: Handle next / previous accordingly, for now we're
+                // just consuming the events.
+                return true;
+        }
+        return false;
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return isMediaKey(keyCode);
+    }
+
+    private static boolean isMediaKey(int keyCode) {
+        return keyCode == KeyEvent.KEYCODE_HEADSETHOOK
+                || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS
+                || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
+                || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
+                || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE;
+    }
+
     // We want to pause when the headset is unplugged.
     private class AudioBecomingNoisyReceiver extends BroadcastReceiver {
 
@@ -348,9 +397,7 @@ public class MoviePlayer implements
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mVideoView.isPlaying()) {
-                mVideoView.pause();
-          }
+            if (mVideoView.isPlaying()) pauseVideo();
         }
     }
 }

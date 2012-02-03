@@ -18,55 +18,68 @@ package com.android.gallery3d.photoeditor;
 
 import android.app.Dialog;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 
 import com.android.gallery3d.R;
 
+import java.util.ArrayList;
+
 /**
  * Spinner model progress dialog that disables all tools for user interaction after it shows up and
- * and re-enables them after it dismisses.
+ * and re-enables them after it dismisses; this class along with all its methods should be accessed
+ * in only UI thread and allows only one instance at a time.
  */
 public class SpinnerProgressDialog extends Dialog {
 
-    private final ViewGroup tools;
+    private static ViewGroup toolbar;
+    private static SpinnerProgressDialog dialog;
+    private final ArrayList<View> enabledTools = new ArrayList<View>();
 
-    public static SpinnerProgressDialog show(ViewGroup tools) {
-        SpinnerProgressDialog dialog = new SpinnerProgressDialog(tools);
-        dialog.setCancelable(false);
-        dialog.show();
-        return dialog;
+    public static void initialize(ViewGroup toolbar) {
+        SpinnerProgressDialog.toolbar = toolbar;
     }
 
-    private SpinnerProgressDialog(ViewGroup tools) {
-        super(tools.getContext(), R.style.SpinnerProgressDialog);
+    public static void showDialog() {
+        // There should be only one progress dialog running at a time.
+        if (dialog == null) {
+            dialog = new SpinnerProgressDialog();
+            dialog.setCancelable(false);
+            dialog.show();
+            // Disable enabled tools when showing spinner progress dialog.
+            for (int i = 0; i < toolbar.getChildCount(); i++) {
+                View view = toolbar.getChildAt(i);
+                if (view.isEnabled()) {
+                    dialog.enabledTools.add(view);
+                    view.setEnabled(false);
+                }
+            }
+        }
+    }
 
-        addContentView(new ProgressBar(tools.getContext()), new LayoutParams(
+    public static void dismissDialog() {
+        if (dialog != null) {
+            dialog.dismiss();
+            // Enable tools that were disabled by this spinner progress dialog.
+            for (View view : dialog.enabledTools) {
+                view.setEnabled(true);
+            }
+            dialog = null;
+        }
+    }
+
+    private SpinnerProgressDialog() {
+        super(toolbar.getContext(), R.style.SpinnerProgressDialog);
+        addContentView(new ProgressBar(toolbar.getContext()), new LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-
-        this.tools = tools;
-        enableTools(false);
-    }
-
-    @Override
-    public void dismiss() {
-        super.dismiss();
-
-        enableTools(true);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
-
         // Pass touch events to tools for killing idle even when the progress dialog is shown.
-        return tools.dispatchTouchEvent(event);
-    }
-
-    private void enableTools(boolean enabled) {
-        for (int i = 0; i < tools.getChildCount(); i++) {
-            tools.getChildAt(i).setEnabled(enabled);
-        }
+        return toolbar.dispatchTouchEvent(event);
     }
 }

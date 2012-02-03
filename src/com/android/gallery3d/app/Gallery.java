@@ -56,8 +56,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -69,8 +69,7 @@ import android.widget.RemoteViews;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-
-import android.content.ContentResolver;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -89,7 +88,7 @@ import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.ui.GLRoot;
 import com.android.gallery3d.util.GalleryUtils;
 
-public final class Gallery extends AbstractGalleryActivity {
+public final class Gallery extends AbstractGalleryActivity implements OnCancelListener {
     public static final String EXTRA_SLIDESHOW = "slideshow";
     public static final String EXTRA_CROP = "crop";
 
@@ -98,8 +97,8 @@ public final class Gallery extends AbstractGalleryActivity {
     public static final String KEY_GET_ALBUM = "get-album";
     public static final String KEY_TYPE_BITS = "type-bits";
     public static final String KEY_MEDIA_TYPES = "mediaTypes";
+	private Dialog mVersionCheckDialog;
 	public static SharedPreferences mableUpdate;
-
     private static final String TAG = "Gallery";
     private GalleryActionBar mActionBar;
 	private static final int HANDLE_DOWNLOAD_FINISH=100;
@@ -107,15 +106,13 @@ public final class Gallery extends AbstractGalleryActivity {
 	private static final int HANDLE_UPDATE_SUCCEED=222;
 	private static final int HANDLE_UPDATE_FAIL=333;
     private int downloadStatus=0;
-    private long fileSize=0;
+	private long fileSize=0;  
 	private Context mContext;
 	private int tryNum=0;
 	private boolean downloadFinish=false;
 	private DownloadTask mDownloadTask=new DownloadTask();
 	private NotificationManager notificationManager;
 	private boolean downloadOut=false;
-    
-    
 	private final Handler handler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {			
@@ -149,7 +146,6 @@ public final class Gallery extends AbstractGalleryActivity {
 				}
 			}
 		};
-	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,7 +155,7 @@ public final class Gallery extends AbstractGalleryActivity {
 
         setContentView(R.layout.main);
         mActionBar = new GalleryActionBar(this);
-        
+
 		mableUpdate=getSharedPreferences("ABLE_UPDATE",MODE_PRIVATE);
         if (savedInstanceState != null) {
             getStateManager().restoreFromState(savedInstanceState);
@@ -200,6 +196,10 @@ public final class Gallery extends AbstractGalleryActivity {
         data.putString(AlbumSetPage.KEY_MEDIA_PATH,
                 getDataManager().getTopSetPath(DataManager.INCLUDE_ALL));
         getStateManager().startState(AlbumSetPage.class, data);
+        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.setOnCancelListener(this);
+        }
     }
 
     private void startGetContent(Intent intent) {
@@ -305,7 +305,6 @@ public final class Gallery extends AbstractGalleryActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-		
         return getStateManager().createOptionsMenu(menu);
     }
 	@Override
@@ -315,13 +314,10 @@ public final class Gallery extends AbstractGalleryActivity {
 				
 	  	MenuItem update=menu.findItem(R.id.action_update);
 			if(update!=null){
-				//SharedPreferences mableUpdate=getSharedPreferences("ABLE_UPDATE",MODE_PRIVATE);
 				String mstr=mableUpdate.getString("UPDATE", null);
 				if(mstr.equals("ABLE")){       
-                    update.setTitle(R.string.close_update_notice);
-					//Toast.makeText(this, "Menu"+mableUpdate.getString("UPDATE", null),Toast.LENGTH_SHORT).show(); 
-			        }else if(mstr.equals("UNABLE")){
-                        //Toast.makeText(this, "Menu"+mableUpdate.getString("UPDATE", null),Toast.LENGTH_SHORT).show(); 
+                    update.setTitle(R.string.close_update_notice);				
+			        }else if(mstr.equals("UNABLE")){      
 					    update.setTitle(R.string.allow_update_notice);
 						 
 				     } 
@@ -330,11 +326,9 @@ public final class Gallery extends AbstractGalleryActivity {
   
 
 	}
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         GLRoot root = getGLRoot();
-		
         root.lockRenderThread();
         try {
             return getStateManager().itemSelected(item);
@@ -353,7 +347,6 @@ public final class Gallery extends AbstractGalleryActivity {
         } finally {
             root.unlockRenderThread();
         }
-		
     }
 
     @Override
@@ -378,26 +371,41 @@ public final class Gallery extends AbstractGalleryActivity {
     protected void onResume() {
         Utils.assertTrue(getStateManager().getStateCount() > 0);
         super.onResume();
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.show();
+        }
 		resumeNum++;
 		if(downloadFinish&&!isPackageExist(packageName)&&resumeNum<=2){
 			isInstallFinish();
 			}
-		
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.dismiss();
+        }
+    }
+
     @Override
     public GalleryActionBar getGalleryActionBar() {
         return mActionBar;
     }
 
-    
-	
-    CheckUpdate.MyBinder binder;
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        if (dialog == mVersionCheckDialog) {
+            mVersionCheckDialog = null;
+        }
+    }
+
+	CheckUpdate.MyBinder binder;
 	String newVerName;
 	String newURL;
 	Timer timer=new Timer();
 	boolean serviceCon=false;	
 	int checkTime=0;
-    
 	String apkName;
     String TARGET ="/mnt/sdcard/Download/";
 	File DOWN_DIR = new File(TARGET); 
@@ -405,10 +413,8 @@ public final class Gallery extends AbstractGalleryActivity {
     Thread download;
 	ProgressDialog mPro;
     boolean upAble=false;
-	int CONNUM=0;
 	int resumeNum=0;
 	String describe;
-	
     public void checkUpdate()
     {	
 	    packageName=mableUpdate.getString("packageName",null);
@@ -422,9 +428,7 @@ public final class Gallery extends AbstractGalleryActivity {
     	if(!checkInternet())return;
     	Intent intent =new Intent();
     	intent.setAction("org.crazyit.anction.SERVICE");
-    	bindService(intent,conn,Service.BIND_AUTO_CREATE);
-        
-    
+    	bindService(intent,conn,Service.BIND_AUTO_CREATE);        
     }
    private void  runTimer()
    {    
@@ -449,8 +453,7 @@ public final class Gallery extends AbstractGalleryActivity {
 					  this.cancel();
 				}
 				if(status)
-				{   
-						      
+				{   	      
 				    if(binder.isDiscoverableNew())	
 				         { 
 				          newURL=binder.getNewURL();
@@ -485,40 +488,33 @@ public final class Gallery extends AbstractGalleryActivity {
 		  builder.setView(view);  
 		  final AlertDialog dialog=builder.create();
 		  dialog.show();
-		  mCancel.setOnClickListener(new View.OnClickListener() {
-					
+		  mCancel.setOnClickListener(new View.OnClickListener() {		
 			 @Override
 			 public void onClick(View v) {
 						// TODO Auto-generated method stub
 				mCancel.setBackgroundResource(R.drawable.dialog_button_background_2);
 				if(upAble){
-                     //SharedPreferences mableUpdate=getSharedPreferences("ABLE_UPDATE",MODE_PRIVATE);
     	             SharedPreferences.Editor mEditor=mableUpdate.edit();
 					 mEditor.putString("UPDATE", "UNABLE");
     		         mEditor.commit();	
-
 					 Log.v(TAG,mableUpdate.getString("UPDATE", null));
 				}
 			    dialog.dismiss();
 						
 					}
 			});
-		  mSure.setOnClickListener(new View.OnClickListener() {
-						
+		  mSure.setOnClickListener(new View.OnClickListener() {			
 			 @Override
 			 public void onClick(View v) {
 							// TODO Auto-generated method stub
 				DOWN_DIR.mkdir();
-			   
 			    mDownloadTask.execute(newURL,TARGET);
-                
 				mSure.setBackgroundResource(R.drawable.dialog_button_background_2);
 			    dialog.dismiss();
 				}
 			}); 
 				  
            mCheckbox.setOnClickListener(new View.OnClickListener() {
-			
 			    @Override
 			    public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -535,13 +531,10 @@ public final class Gallery extends AbstractGalleryActivity {
 		   });     
 	   
    }
-
-   
     public ServiceConnection conn=new ServiceConnection()
     {
         public void onServiceConnected(ComponentName name, IBinder service) {
 			// TODO Auto-generated method stub\
-        	
 		    binder=(CheckUpdate.MyBinder)service;
 			System.out.println("---Service Connected--");
 			serviceCon=true;
@@ -549,8 +542,7 @@ public final class Gallery extends AbstractGalleryActivity {
 			
 		}
         public void onServiceDisconnected(ComponentName name) {
-			// TODO Auto-generated method stub
-			
+			// TODO Auto-generated method stub	
 		}
     	
     };
@@ -566,12 +558,8 @@ public final class Gallery extends AbstractGalleryActivity {
     	}else if(str.equals("UNABLE")){
     	      Log.v(TAG,"It's the mode that unable to check update ");
     	      return false;
- 
-		}
-    	           
-		      
-		return true;
-    	
+		}   
+		return true;	
 	}
 	public  boolean isInstallFinish(){
         SharedPreferences.Editor mEditor=mableUpdate.edit();
@@ -616,8 +604,7 @@ public final class Gallery extends AbstractGalleryActivity {
     		    k=k%1024;
     	    str=m*status/100+"."+ status*k/100+"Mb/"+m+"."+k+"Mb";
     	  }
-    	return str;
-    	
+    	return str;	
     }
 	public boolean isPackageExist(String packagename)
     {
@@ -632,7 +619,7 @@ public final class Gallery extends AbstractGalleryActivity {
 				Log.i(TAG,packagename+" is not exist");
 				return false;
 			}
-    	//Log.i(TAG,"packagename="+name);
+		Log.i(TAG,"packagename="+name);
     	return true;
     	
     }
@@ -674,7 +661,6 @@ public final class Gallery extends AbstractGalleryActivity {
         	HttpClient client = new DefaultHttpClient();        
             HttpGet get = new HttpGet(URL);          
             try {   
-            	 
     			Log.i(TAG,"start client.execute");
             	HttpResponse response = client.execute(get);  // 
     			Log.i(TAG,"finish client.execute");
@@ -689,7 +675,6 @@ public final class Gallery extends AbstractGalleryActivity {
     			Log.i(TAG,"fileSize=:"+fileSize);
                 InputStream is = entity.getContent();   
                 FileOutputStream fileOutputStream = null;   
-                
                 if (is != null) {   
                     File file = new File(dir);   
                     fileOutputStream = new FileOutputStream(file);   
@@ -702,13 +687,11 @@ public final class Gallery extends AbstractGalleryActivity {
         	              count_size+=hasRead;
         	        	   Log.i(TAG,"count_size="+count_size);
         	        	   percent=(int) (count_size*100/fileSize);
-        	        	   
         	        	    if(percent==100)  {
                                 Message msg=new Message();
 		                        msg.what=HANDLE_DOWNLOAD_FINISH;  
                                 Gallery.this.handler.sendMessage(msg);
 							    notificationManager.cancel(0);
-								//
 							}
 							if(downloadOut){
                                notificationManager.cancel(0);
@@ -723,9 +706,7 @@ public final class Gallery extends AbstractGalleryActivity {
                 fileOutputStream.flush();   
                 if (fileOutputStream != null) {   
                     fileOutputStream.close();   
-                }  
-				
-               
+                }  			 
             } catch (ClientProtocolException e) {   
                 e.printStackTrace(); 
                 System.out.println("ClientProtocolException :downloading fail......");          
@@ -739,7 +720,6 @@ public final class Gallery extends AbstractGalleryActivity {
         }
 
         protected void onProgressUpdate(Integer... param) {
-			
 			   view.setProgressBar(R.id.progress, 100, param[0], false);
 		       view.setTextViewText(R.id.percent, setStr(fileSize,param[0]));	 
 			   notificationManager.notify(0, notification);
@@ -749,7 +729,6 @@ public final class Gallery extends AbstractGalleryActivity {
 			  	}
         	
         }
-
         protected void onPostExecute(Integer... result) {
 			Log.v(TAG,"download onPostExecute");
              if(result[0]==1){
@@ -779,5 +758,4 @@ public final class Gallery extends AbstractGalleryActivity {
     	
        }
     }
-	
 }

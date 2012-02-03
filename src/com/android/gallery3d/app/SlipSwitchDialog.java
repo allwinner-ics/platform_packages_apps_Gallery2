@@ -27,6 +27,7 @@ public class SlipSwitchDialog{
     public SlipSwitchDialog(Context context, OnSwitchResultListener listener, boolean initSwitch){
     	mListener = listener;
     	mInitSwitch = initSwitch;
+    	switchResult = initSwitch;
     	
     	contentView = LayoutInflater.from(context).inflate(R.layout.slip_switch, null);
     	LinearLayout switchLayout = (LinearLayout)contentView.findViewById(R.id.slip_gate);
@@ -43,7 +44,7 @@ public class SlipSwitchDialog{
     
         Button leftButton = (Button)contentView.findViewById(R.id.button1);
         Button rightButton = (Button)contentView.findViewById(R.id.button2);
-        leftButton.setText(R.string.crop_save_text);
+        leftButton.setText(R.string.confirm_button);
         rightButton.setText(R.string.cancel);
         leftButton.setOnClickListener(new OnClickListener(){
 

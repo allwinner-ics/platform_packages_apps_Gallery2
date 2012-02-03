@@ -30,15 +30,19 @@ import com.android.gallery3d.R;
  */
 public class PhotoEditor extends Activity {
 
+    private static final String SAVE_URI_KEY = "save_uri";
+
     private Uri sourceUri;
     private Uri saveUri;
     private FilterStack filterStack;
     private ActionBar actionBar;
+    private EffectsBar effectsBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.photoeditor_main);
+        SpinnerProgressDialog.initialize((ViewGroup) findViewById(R.id.toolbar));
 
         Intent intent = getIntent();
         if (Intent.ACTION_EDIT.equalsIgnoreCase(intent.getAction())) {
@@ -53,24 +57,26 @@ public class PhotoEditor extends Activity {
                     public void onStackChanged(boolean canUndo, boolean canRedo) {
                         actionBar.updateButtons(canUndo, canRedo);
                     }
-        });
+        }, savedInstanceState);
+        if (savedInstanceState != null) {
+            saveUri = savedInstanceState.getParcelable(SAVE_URI_KEY);
+            actionBar.updateSave(saveUri == null);
+        }
 
-        EffectsBar effectsBar = (EffectsBar) findViewById(R.id.effects_bar);
+        // Effects-bar is initially disabled until photo is successfully loaded.
+        effectsBar = (EffectsBar) findViewById(R.id.effects_bar);
         effectsBar.initialize(filterStack);
+        effectsBar.setEnabled(false);
 
-        actionBar.setClickRunnable(R.id.undo_button, createUndoRedoRunnable(true, effectsBar));
-        actionBar.setClickRunnable(R.id.redo_button, createUndoRedoRunnable(false, effectsBar));
-        actionBar.setClickRunnable(R.id.save_button, createSaveRunnable(effectsBar));
-        actionBar.setClickRunnable(R.id.share_button, createShareRunnable(effectsBar));
-        actionBar.setClickRunnable(R.id.action_bar_back, createBackRunnable(effectsBar));
-    }
-
-    private SpinnerProgressDialog createProgressDialog() {
-        return SpinnerProgressDialog.show((ViewGroup) findViewById(R.id.toolbar));
+        actionBar.setClickRunnable(R.id.undo_button, createUndoRedoRunnable(true));
+        actionBar.setClickRunnable(R.id.redo_button, createUndoRedoRunnable(false));
+        actionBar.setClickRunnable(R.id.save_button, createSaveRunnable());
+        actionBar.setClickRunnable(R.id.share_button, createShareRunnable());
+        actionBar.setClickRunnable(R.id.action_bar_back, createBackRunnable());
     }
 
     private void openPhoto() {
-        final SpinnerProgressDialog progressDialog = createProgressDialog();
+        SpinnerProgressDialog.showDialog();
         LoadScreennailTask.Callback callback = new LoadScreennailTask.Callback() {
 
             @Override
@@ -79,7 +85,8 @@ public class PhotoEditor extends Activity {
 
                     @Override
                     public void onDone() {
-                        progressDialog.dismiss();
+                        SpinnerProgressDialog.dismissDialog();
+                        effectsBar.setEnabled(result != null);
                     }
                 });
             }
@@ -87,7 +94,7 @@ public class PhotoEditor extends Activity {
         new LoadScreennailTask(this, callback).execute(sourceUri);
     }
 
-    private Runnable createUndoRedoRunnable(final boolean undo, final EffectsBar effectsBar) {
+    private Runnable createUndoRedoRunnable(final boolean undo) {
         return new Runnable() {
 
             @Override
@@ -96,12 +103,12 @@ public class PhotoEditor extends Activity {
 
                     @Override
                     public void run() {
-                        final SpinnerProgressDialog progressDialog = createProgressDialog();
+                        SpinnerProgressDialog.showDialog();
                         OnDoneCallback callback = new OnDoneCallback() {
 
                             @Override
                             public void onDone() {
-                                progressDialog.dismiss();
+                                SpinnerProgressDialog.dismissDialog();
                             }
                         };
                         if (undo) {
@@ -115,7 +122,7 @@ public class PhotoEditor extends Activity {
         };
     }
 
-    private Runnable createSaveRunnable(final EffectsBar effectsBar) {
+    private Runnable createSaveRunnable() {
         return new Runnable() {
 
             @Override
@@ -124,8 +131,8 @@ public class PhotoEditor extends Activity {
 
                     @Override
                     public void run() {
-                        final SpinnerProgressDialog progressDialog = createProgressDialog();
-                        filterStack.saveBitmap(new OnDoneBitmapCallback() {
+                        SpinnerProgressDialog.showDialog();
+                        filterStack.getOutputBitmap(new OnDoneBitmapCallback() {
 
                             @Override
                             public void onDone(Bitmap bitmap) {
@@ -133,9 +140,9 @@ public class PhotoEditor extends Activity {
 
                                     @Override
                                     public void onComplete(Uri result) {
-                                        progressDialog.dismiss();
-                                        actionBar.updateSave(result == null);
+                                        SpinnerProgressDialog.dismissDialog();
                                         saveUri = result;
+                                        actionBar.updateSave(saveUri == null);
                                     }
                                 };
                                 new SaveCopyTask(PhotoEditor.this, sourceUri, callback).execute(
@@ -148,7 +155,7 @@ public class PhotoEditor extends Activity {
         };
     }
 
-    private Runnable createShareRunnable(final EffectsBar effectsBar) {
+    private Runnable createShareRunnable() {
         return new Runnable() {
 
             @Override
@@ -169,7 +176,7 @@ public class PhotoEditor extends Activity {
         };
     }
 
-    private Runnable createBackRunnable(final EffectsBar effectsBar) {
+    private Runnable createBackRunnable() {
         return new Runnable() {
 
             @Override
@@ -200,15 +207,23 @@ public class PhotoEditor extends Activity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        filterStack.saveStacks(outState);
+        outState.putParcelable(SAVE_URI_KEY, saveUri);
+    }
+
+    @Override
     public void onBackPressed() {
         actionBar.clickBack();
     }
 
     @Override
     protected void onPause() {
-        // TODO: Close running progress dialogs as all pending operations will be paused.
         super.onPause();
         filterStack.onPause();
+        // Dismiss any running progress dialog as all operations are paused.
+        SpinnerProgressDialog.dismissDialog();
     }
 
     @Override

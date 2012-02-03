@@ -60,7 +60,7 @@
 			android:layout_height="wrap_content"
 			android:paddingLeft="50dip"
 			android:paddingRight="50dip"
-			android:text="@string/crop_save_text"/>
+			android:text="@string/confirm_button"/>
 	</LinearLayout>
 	
 </LinearLayout>

@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <style name="Theme.Gallery" parent="android:Theme.Holo">
         <item name="android:displayOptions"></item>
-        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:actionBarStyle">@style/Holo.ActionBar</item>
         <item name="android:windowBackground">@null</item>
@@ -146,12 +146,12 @@
         <item name="android:src">@drawable/back</item>
     </style>
 
-    <style name="dialog" parent="@android:style/Theme.Dialog">  <!-- 在系统Dialog样式基础上，相当于继承系统样式 -->
-        <item name="android:windowFrame">@null</item>  <!-- Dialog的windowFrame框为无 -->
+    <style name="dialog" parent="@android:style/Theme.Dialog">  <!-- 在系统Dialog样式基础上，相当于继承系统样�?-->
+        <item name="android:windowFrame">@null</item>  <!-- Dialog的windowFrame框为�?-->
         <item name="android:windowIsFloating">true</item>  <!-- 是否浮现在activity之上 -->
         <item name="android:windowIsTranslucent">false</item>  <!-- 是否半透明 -->
         <item name="android:windowNoTitle">true</item>  <!-- 是否显示title -->
-        <!-- <item name="android:windowBackground">@drawable/dia_bg</item> --> <!-- 设置dialog的背景 -->
+        <!-- <item name="android:windowBackground">@drawable/dia_bg</item> --> <!-- 设置dialog的背�?-->
         <item name="android:backgroundDimEnabled">false</item>  <!-- 背景是否模糊显示 -->
     </style>
 

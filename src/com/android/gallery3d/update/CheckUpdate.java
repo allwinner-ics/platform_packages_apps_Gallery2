@@ -47,32 +47,25 @@ public class CheckUpdate extends Service {
     private String target="/mnt/sdcard/apk-info-update.txt";
 	private String apkName;
 	
-    private DownThread downUtil;
     private MyBinder binder;
     private Handler handler;
-    private int newVerCode;
     private List<String> newURL=new ArrayList<String>();
 	private String randomURL;
-	private String fastURL;
 	private String newVerName;
 	private String describe;
 	private String packageName;
-    private int oldVerCode;
 
     public  int status=0;
     private Thread thread;
     private int ThreadNum=0;
 	private String[] UrlTeam ;
 	private int UrlNum=0;
-    private int minPingTime=10000;
-    private int fastURLNum=0;
     private boolean  readFinish=false;
 	private boolean discoverNew=false;
 	private SharedPreferences mShare;
 	private int randomDay=4;
 	private int testFlag=0;
     private String language;
-	private int MSG_PING_TIME=222;
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -102,36 +95,10 @@ public class CheckUpdate extends Service {
 			    path=path.replace("-Zh.txt","-Eg.txt");
 			}
 		readPreference();
-		//Log.v(TAG,"info="+path);
 	    handler=new Handler()
 	    {   @Override
 	    	public  void handleMessage(Message msg)
 	    	{ 
-                if (msg.what==MSG_PING_TIME)
-	    	    {
-	    		   Integer[] date=(Integer[]) msg.obj;
-	    		   if(date[0]<UrlNum)
-	    		   {
-	    			  if(date[1]!=0&&date[1]<minPingTime)
-	    			   {	    			    					
-	    			    minPingTime=date[1];
-	    				fastURLNum=date[0];	    				
-	    			   }
-	    		    }
-	    		   if(date[0]==UrlNum-1)
-	    		   {
-	    		      if(minPingTime>=1300){
-                        oldVerCode=newVerCode;
-						Log.v(TAG,"all URl is not ping");
-						readFinish=true;
-						return;
-	    		      	}
-	    			  fastURL=UrlTeam[fastURLNum];
-					  Log.v(TAG,"fastURL="+fastURL);
-	    			  readFinish=true;
-	    		    }
-	    		
-	    	   }
 			   if(msg.what==100){
 		           Log.i(TAG,"download finished");
 	    	       readTextInfo();
@@ -154,7 +121,6 @@ public class CheckUpdate extends Service {
 		
 	   thread=new Thread(new DownThread(path,target,handler));
 	   thread.start();
-	 // readTextInfo();
 	    
 	}
 		
@@ -206,41 +172,37 @@ public class CheckUpdate extends Service {
 	
 	private void readTextInfo()
 	{   
-	    PingThread  pingThread;
 		TextInfo textInfo=new TextInfo(target,mContext);
-		//newVerCode=textInfo.getNewVerCode(apkName);
 		String scope;
 		String release;
-		String FIRMWARE;
-		FIRMWARE=Build.FIRMWARE;
-		Log.v(TAG,"Build.FIRMWARE="+FIRMWARE);
-		if(FIRMWARE.equals("unknown")){
-			Log.v(TAG,"The firmware is unkonwn");
-			return;
-
-		}
-		FIRMWARE=getNumber(FIRMWARE);
+		String FIRMWARE;					
 		int num=textInfo.discoverNew();
 		if(num!=-1){
           Log.v(TAG,"find new apk to download");
 		  scope=textInfo.getScope(num);
 		  release=textInfo.getRelease(num);
-		  Log.v(TAG,"release="+release);
-		  release=getNumber(release);
-		  if(release.toString().equals("")||FIRMWARE.toString().equals("")) {
-            Log.v(TAG,"Can know the release or FIRMWARE");
-			return;}
-          if(Integer.parseInt(FIRMWARE)<Integer.parseInt(release)){
-              Log.v(TAG,"The FIRMWARE is to low");
-			  return;
+		  if(scope==null||release==null){
+            Log.v(TAG,"scope==null or release==null ");
+			return;
 		  }
-		  
-		  Log.v(TAG,"scope="+scope);
 		  Log.v(TAG,"release="+release);
+		  Log.v(TAG,"scope="+scope);
 		  String mScope[]=scope.split("-");
 		  int min=Integer.parseInt(mScope[0]);
 		  int max=Integer.parseInt(mScope[1]);
 		  if(min<=readPreference()&&max>=readPreference()){
+		  	  FIRMWARE=Build.FIRMWARE;
+			  Log.v(TAG,"Build.FIRMWARE="+FIRMWARE);
+			  FIRMWARE=getNumber(FIRMWARE);
+			  release=getNumber(release);
+		      if(release.toString().equals("")||FIRMWARE.toString().equals("")) {
+                 Log.v(TAG,"Can know the release or FIRMWARE");
+			     return;
+				 }
+		  	  if(Integer.parseInt(FIRMWARE)<Integer.parseInt(release)){
+                  Log.v(TAG,"The FIRMWARE is to low");
+			      return;
+		        } 
 		  	  apkName=textInfo.getApkName(num);
 			  SharedPreferences.Editor mEditor=Gallery.mableUpdate.edit();						
 		      mEditor.putString("apkName",apkName);
@@ -255,7 +217,7 @@ public class CheckUpdate extends Service {
 			  Iterator<String> getLen=newURL.iterator();
 		      while(getLen.hasNext()){ 
 			  	 UrlNum++;
-		         Log.i(TAG, getLen.next()); 
+		         getLen.next();
 		      } 
 			  UrlTeam=new String[UrlNum];
 		      Iterator<String> getUrl=newURL.iterator();
@@ -265,25 +227,13 @@ public class CheckUpdate extends Service {
 		      }
 			  int random=(int)(Math.random()*(UrlNum-1)); 
 			  randomURL=UrlTeam[random];
-			 // Log.v(TAG,"randomURL="+randomURL);
 			  readFinish=true;
 		  }else {
               Log.v(TAG,"This pad Can't download apk package");
 		  }
 		}
 
-	}
-
-	public String  getWWWURL(String url)
-	{
-		String mUrl[]=url.split(".com");
-		mUrl[0]=mUrl[0].replace("http://", "");
-		mUrl[0]=mUrl[0]+".com";
-		//Log.v(TAG,mUrl[0]);
-		return mUrl[0];
-			
-	}
-	
+	}	
 	public int readPreference()
 	{		
     	SharedPreferences.Editor mEditor=mShare.edit();
@@ -297,16 +247,11 @@ public class CheckUpdate extends Service {
     	if(mShare.getInt("shareNum", 1001)==1001)
     	{
     		mEditor.putInt("shareNum", random);
-    		mEditor.commit();
-			
-    		
+    		mEditor.commit();	
     	}
-    	
     	 shareNum=mShare.getInt("shareNum", 1001);
-    	 Log.v(TAG,"shareNum="+shareNum);   
-    	
-		return shareNum;
-    	
+    	 Log.v(TAG,"shareNum="+shareNum);     	
+		return shareNum;    	
 	}
 	public String getNumber(String str){
 		StringBuilder sb = new StringBuilder();
@@ -320,147 +265,10 @@ public class CheckUpdate extends Service {
     	
 		
 	}
-	public boolean TimeTask(){
-        
-		
-		int shareNum=mShare.getInt("shareNum", 10);
-		int delayDay=0;
-		int delayMinute=0;
-		boolean result=false;
-		SharedPreferences.Editor mEditor=Gallery.mableUpdate.edit();
-        String hasDelay=Gallery.mableUpdate.getString("HASDELAY",null);
-		
-		Calendar c=Calendar.getInstance();
-		c.setTimeInMillis(System.currentTimeMillis());
-		int Day=c.get(Calendar.DAY_OF_MONTH);
-		int Minute=c.get(Calendar.MINUTE);
-		Log.v(TAG,"now Date="+c.getTime());
-		if(shareNum!=10){
-		   delayDay=shareNum%randomDay;
-	       delayMinute=shareNum%randomDay;
-		   if(delayMinute!=0){	
-                 if(hasDelay==null||hasDelay.equals("NOTDALAY")){
-			         mEditor.putString("HASDELAY","HASDELAY");
-		             mEditor.commit();
-			         Log.v(TAG,"The delay mode is "+Gallery.mableUpdate.getString("HASDELAY",null));
-
-		        }else if(hasDelay.equals("HASDELAY")){
-		                   mEditor.putString("HASDELAY","NOTDALAY");
-		                   mEditor.commit();
-			               Log.v(TAG,"The delay mode is "+Gallery.mableUpdate.getString("HASDELAY",null));
-                           return false;
-				       }
-		
-			     mEditor.putString("UPDATE","UNABLE");
-			     mEditor.commit();
-			     Log.v(TAG,"The checkUpdate mode has change to "+Gallery.mableUpdate.getString("UPDATE",null));
-                 result= true;
-		   } else return false;
-		   Minute+=delayMinute;
-		   c.set(Calendar.MINUTE,Minute);
-		   Log.v(TAG,"update in Date="+c.getTime());
-		   AlarmManager alarm=(AlarmManager)getSystemService(Service.ALARM_SERVICE);
-		   Intent intent=new Intent(CheckUpdate.this,TimeTask.class);
-		   intent.putExtra("UPDATE","ABLE");
-		   PendingIntent pi=PendingIntent.getBroadcast(CheckUpdate.this, 0, intent, 0);
-		   alarm.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);//RTC_WAKEUP
-		}
-        	
-		  return result;
-	}
 	@Override
 	public void onDestroy()
 	{
 		Log.i(TAG,"---CheckUpdae service Destroy  finish---");
-	}
-	
-	private class PingThread extends HandlerThread{
-         private int num;
-         private String name;
-         private Handler handler;
-		 
-         public PingThread(String name, int num,Handler handler) {
-                 super(name);
-                 this.num=num;
-                 this.handler=handler;
-                 this.name=name;
-         }
-
-        
-         @Override
-         protected void onLooperPrepared() { 
-        	    
-        	    Message msg=new Message();
-        	    msg.what=MSG_PING_TIME;
-				int pingTime =pingNet(name);
-        	    Integer[] date=new Integer[]{num,pingTime};
-        	    msg.obj=date;
-        	    handler.sendMessage(msg);
-
-				
-         }
-		 
-         public int pingNet(String url)
-     	 {   
-     		String line;
-     		int numTime=0;
-     		int averTime=0;
-     	    Process localProcess;
-			try {
-				Log.v(TAG,"start ping");
-				localProcess = Runtime.getRuntime().exec("ping -c 2 "+url);
-			    			
-				InputStream localInputStream = localProcess.getInputStream(); 				
-		        BufferedReader localBufferedReader = new BufferedReader(new InputStreamReader(localInputStream));       
-		          
-		        while ((line = localBufferedReader.readLine()) != null) 
-		         {  
-		  
-		             if(getTime(line)!=0)
-		             {
-		                 
-		                 numTime++;
-		                 averTime+=getTime(line);
-		              }
-		                 
-		           }
-		         localBufferedReader.close(); 
-				 //localProcess.destroy();  
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-             if(numTime!=0)
-             {
-             	averTime=averTime/numTime;
-             }else 
-             	averTime=0;
-             Log.v(TAG,name);
-             Log.i(TAG, "averTime="+averTime);
-             return averTime;
-     	}
-     	
-         public int getTime(String line)
-     	{
-     		int ms=0;
-     		if(line.indexOf("time=")!=-1)
-     		{
-     			StringBuilder sb = new StringBuilder(); 
-     			String strTeam[]=line.split(" ");
-     			String time[]=strTeam[6].split("=");
-     			
-     			for(int i=0;i<time[1].length();i++)
-     		    {
-     		    	if(time[1].charAt(i)=='.')
-     		    	    break;
-     		    	sb.append(time[1].charAt(i));
-     		    	
-     		    }     		 
-     			ms=Integer.parseInt(sb.toString());     			    			      		       		    
-     		}
-     		return ms;
-     		
-     	}
-    }
+	}	
 	
 }

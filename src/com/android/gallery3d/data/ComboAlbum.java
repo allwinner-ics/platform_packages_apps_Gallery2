@@ -67,6 +67,11 @@ public class ComboAlbum extends MediaSet implements ContentListener {
     }
 
     @Override
+    public boolean isLeafAlbum() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return mName;
     }
@@ -88,6 +93,6 @@ public class ComboAlbum extends MediaSet implements ContentListener {
 
     @Override
     public Future<Integer> requestSync(SyncListener listener) {
-        return requestSyncOnEmptySets(mSets, listener);
+        return requestSyncOnMultipleSets(mSets, listener);
     }
 }

@@ -16,17 +16,19 @@
 
 package com.android.gallery3d.picasasource;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.media.ExifInterface;
+import android.os.ParcelFileDescriptor;
+
 import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.MediaSource;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.data.PathMatcher;
-
-import android.app.Activity;
-import android.content.Context;
-import android.media.ExifInterface;
-import android.os.ParcelFileDescriptor;
 
 import java.io.FileNotFoundException;
 
@@ -80,6 +82,10 @@ public class PicasaSource extends MediaSource {
         }
     }
 
+    public static MediaItem getFaceItem(Context context, MediaItem item, int faceIndex) {
+        throw new UnsupportedOperationException();
+    }
+
     public static boolean isPicasaImage(MediaObject object) {
         return false;
     }
@@ -127,5 +133,11 @@ public class PicasaSource extends MediaSource {
 
     public static void onPackageRemoved(Context context, String packageName) {/*do nothing*/}
 
+    public static void onPackageChanged(Context context, String packageName) {/*do nothing*/}
+
     public static void extractExifValues(MediaObject item, ExifInterface exif) {/*do nothing*/}
+
+    public static Dialog getVersionCheckDialog(Activity activity){
+        return null;
+    }
 }

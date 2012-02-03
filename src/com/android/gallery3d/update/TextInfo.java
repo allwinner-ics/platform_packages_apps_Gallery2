@@ -250,7 +250,7 @@ public class TextInfo {
 				name=info.applicationInfo.className;
 			} catch (NameNotFoundException e) {
 				// TODO Auto-generated catch block
-	            Log.i(TAG,packagename+" is not exist");
+				Log.i(TAG,packagename+" is not exist");
 				return false;
 			}
     	Log.i(TAG,"packagename="+name);

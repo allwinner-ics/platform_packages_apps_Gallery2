@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -414,7 +415,17 @@ public class MediaController extends FrameLayout {
             }
             mSytemTime.setText(currentTime);
             
-            
+            /* set subtitle position */
+            int subPosition = mPlayer.getSubPosition();
+            mRoot.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            		MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            int h = mAnchor.getWidth();
+            if(mAnchor.getWidth() > 0 && mRoot.getMeasuredHeight() > 0) {
+            	subPosition += (mRoot.getMeasuredHeight()*100)/mAnchor.getWidth();
+            	if(subPosition < 100) {
+            		mPlayer.setSubPosition(subPosition);
+            	}
+            }
             mShowing = true;
         }
         updatePausePlay();
@@ -461,6 +472,17 @@ public class MediaController extends FrameLayout {
             try {
                 mHandler.removeMessages(SHOW_PROGRESS);
                 mWindowManager.removeView(mDecor);
+                /* set subtitle position */
+                int subPosition = mPlayer.getSubPosition();
+                mRoot.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                		MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int h = mAnchor.getWidth();
+                if(mAnchor.getWidth() > 0 && mRoot.getMeasuredHeight() > 0) {
+                	subPosition -= (mRoot.getMeasuredHeight()*100)/mAnchor.getWidth();
+                	if(subPosition > 0) {
+                		mPlayer.setSubPosition(subPosition);
+                	}
+                }
             } catch (IllegalArgumentException ex) {
                 Log.w(TAG, "already removed");
             }
@@ -890,5 +912,8 @@ public class MediaController extends FrameLayout {
         boolean canPause();
         boolean canSeekBackward();
         boolean canSeekForward();
+        
+        int getSubPosition();
+        int setSubPosition(int percent);
     }
 }

@@ -22,10 +22,12 @@ public class ColorPickerView extends View{
     ColorPickerView(Context c, OnColorChangedListener l, int color) {
         super(c);
         mListener = l;
-        mColors = new int[] {
+        mColors = new int[] {Color.WHITE, Color.GREEN, Color.GRAY, Color.MAGENTA, Color.YELLOW,
+        		Color.BLACK, Color.BLUE, Color.RED, Color.WHITE};
+        /*mColors = new int[] {
             0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0x00000000, 0xFFFFFFFF, 0xFF00FF00,
             0xFFFFFF00, 0xFFFF0000
-        };
+        };*/
         Shader s = new SweepGradient(0, 0, mColors, null);
         
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
