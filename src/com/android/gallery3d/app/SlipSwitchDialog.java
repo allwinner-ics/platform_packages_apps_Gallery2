@@ -50,9 +50,7 @@ public class SlipSwitchDialog{
 
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if(mInitSwitch != switchResult){
-					mListener.OnSwitchResult(switchResult);
-				}				
+				mListener.OnSwitchResult(switchResult);				
 				mDialog.dismiss();				
 			}
         	

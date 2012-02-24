@@ -1092,11 +1092,10 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public TrackInfo[] getTrackList()
     {
-    	if(mMediaPlayer == null)
-    		return null;
-    	
-        Log.d(TAG, "start getTrackList ");
-    	return mMediaPlayer.getTrackList();
+    	if(mMediaPlayer != null){
+    		return mMediaPlayer.getTrackList();
+    	}    		
+    	return null;
     }
 
     /**
@@ -1107,11 +1106,10 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getCurTrack()
     {
-    	if(mMediaPlayer == null)
-    		return -1;
-    	
-        Log.d(TAG, "start getCurTrack ");
-    	return mMediaPlayer.getCurTrack();
+    	if(mMediaPlayer != null){
+    		return mMediaPlayer.getCurTrack();
+    	}    		
+    	return -1;
     }
 
     /**

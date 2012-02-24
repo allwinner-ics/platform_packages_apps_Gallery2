@@ -953,7 +953,6 @@ VideoView.OnSubFocusItems{
 
     public void subFocusItems() {
     	/* sub gate */
-    	//Log.w(TAG, "*********** setSubFocusItem *****************************************************");
     	boolean gate = sp.getBoolean(EDITOR_SUBGATE, true);
     	mVideoView.setSubGate(gate);
 
@@ -977,15 +976,8 @@ VideoView.OnSubFocusItems{
 		/* resume the current sub & track */
 		if(mOnPause) {
 			mOnPause = false;
-			SubInfo[] subInfo = mVideoView.getSubList();
-			if(subInfo != null && mCurrentSubSave > 0 && mCurrentSubSave < subInfo.length) {
-				mVideoView.switchSub(mCurrentSubSave);
-			}
-			
-			TrackInfo[] trackInfo = mVideoView.getTrackList();
-			if(trackInfo != null && mCurrentTrackSave > 0 && mCurrentTrackSave < trackInfo.length) {
-				mVideoView.switchTrack(mCurrentTrackSave);
-			}
+			mVideoView.switchSub(mCurrentSubSave);			
+			mVideoView.switchTrack(mCurrentTrackSave);
 		}
 }
     
@@ -1023,6 +1015,7 @@ VideoView.OnSubFocusItems{
         mOnPause = true;
         mHandler.removeCallbacksAndMessages(null);
         mCurrentTrackSave = mVideoView.getCurTrack();
+        Log.e(TAG, "onPause(), mCurrentTrackSave = " + mCurrentTrackSave);
         mCurrentSubSave = mVideoView.getCurSub();
         mResumeableTime = System.currentTimeMillis() + RESUMEABLE_TIMEOUT;
         mVideoPosition = mVideoView.getCurrentPosition();
@@ -1045,6 +1038,7 @@ VideoView.OnSubFocusItems{
     }
 
     public void onResume() {
+    	Log.e(TAG, "onResume()");
         if (mOnPause) {
             mVideoView.seekTo(mVideoPosition);
             mVideoView.resume();
@@ -1058,6 +1052,7 @@ VideoView.OnSubFocusItems{
     }
 
     public void onDestroy() {
+    	Log.e(TAG, "onDestroy()");
         mVideoView.stopPlayback();
         mBookmarkService.close();
     }
