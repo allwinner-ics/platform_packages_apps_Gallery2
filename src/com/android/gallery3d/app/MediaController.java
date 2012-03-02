@@ -18,10 +18,10 @@ package com.android.gallery3d.app;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -31,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -95,6 +94,7 @@ public class MediaController extends FrameLayout {
     private static final int    FADE_OUT = 1;
     private static final int    SHOW_PROGRESS = 2;
     private View.OnClickListener mNextListener, mPrevListener;
+    private int mInitSubPos, mUpSubPos;
     StringBuilder                mFormatBuilder;
     Formatter                    mFormatter;
     
@@ -224,6 +224,20 @@ public class MediaController extends FrameLayout {
         mBatteryRemain = (TextView) v.findViewById(R.id.current_battery);
         mFileName.setText(mFileNameText);
         mBatteryRemain.setText(mBatteryText);
+        
+        mProgress = (ProgressBar) v.findViewById(R.id.mediacontroller_progress);
+        if (mProgress != null) {
+            if (mProgress instanceof SeekBar) {
+                SeekBar seeker = (SeekBar) mProgress;
+                seeker.setOnSeekBarChangeListener(mSeekListener);
+            }
+            mProgress.setMax(1000);
+        }
+        
+        mEndTime = (TextView) v.findViewById(R.id.time);
+        mCurrentTime = (TextView) v.findViewById(R.id.time_current);
+        mFormatBuilder = new StringBuilder();
+        mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
     }
     /**
      * Create the view that holds the widgets that control playback.
@@ -330,19 +344,23 @@ public class MediaController extends FrameLayout {
         	mUpButton.setOnClickListener(mUpListener);
         }
         
-        mProgress = (ProgressBar) v.findViewById(R.id.mediacontroller_progress);
-        if (mProgress != null) {
-            if (mProgress instanceof SeekBar) {
-                SeekBar seeker = (SeekBar) mProgress;
-                seeker.setOnSeekBarChangeListener(mSeekListener);
+        //init subtitle position
+        Rect rect = new Rect();
+        v.getWindowVisibleDisplayFrame(rect);
+        int scnH = mWindowManager.getDefaultDisplay().getRawHeight();
+        if(scnH > 0){
+        	mUpSubPos = mInitSubPos = 100 - (rect.bottom * 100 / scnH);
+            mRoot.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            		MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            int measuredH = mRoot.getMeasuredHeight();
+            if(measuredH > 0) {
+            	mUpSubPos = (measuredH * 100) / scnH + mInitSubPos;
             }
-            mProgress.setMax(1000);
-        }
-        
-        mEndTime = (TextView) v.findViewById(R.id.time);
-        mCurrentTime = (TextView) v.findViewById(R.id.time_current);
-        mFormatBuilder = new StringBuilder();
-        mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
+//            Log.d(TAG,"mInitSubPos = " + mInitSubPos + ", measuredH = " + measuredH + ", " + "mUpSubPos = " + mUpSubPos);
+            if(mInitSubPos < 100){
+            	mPlayer.setSubPosition(mInitSubPos);
+            }
+        }        
     }
 
     /**
@@ -390,21 +408,25 @@ public class MediaController extends FrameLayout {
                 mPauseButton.requestFocus();
             }
             disableUnsupportedButtons();
+            
+            /* set subtitle position */
+        	if(mUpSubPos < 100) {
+        		mPlayer.setSubPosition(mUpSubPos);
+        	}
 
-            int [] anchorpos = new int[2];
-            mAnchor.getLocationOnScreen(anchorpos);
-
+            int [] anchorPos = new int[2];
+            mAnchor.getLocationOnScreen(anchorPos);
             WindowManager.LayoutParams p = new WindowManager.LayoutParams();
-            //p.gravity = Gravity.TOP;
-            p.width = mAnchor.getWidth();
+            p.gravity = Gravity.CENTER;
+            p.width = LayoutParams.MATCH_PARENT;
             p.height = LayoutParams.MATCH_PARENT;
-            p.x = 0;
-            p.y = 0;//anchorpos[1] + mAnchor.getHeight() - p.height;
+            p.x = anchorPos[0];
+            p.y = anchorPos[1];
             p.format = PixelFormat.TRANSLUCENT;
             p.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
             p.flags |= WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
             p.token = null;
-            p.windowAnimations = 0; // android.R.style.DropDownAnimationDown;
+            p.windowAnimations = 0;
             mWindowManager.addView(mDecor, p);
             
         	/* show system time */
@@ -415,17 +437,6 @@ public class MediaController extends FrameLayout {
             }
             mSytemTime.setText(currentTime);
             
-            /* set subtitle position */
-            int subPosition = mPlayer.getSubPosition();
-            mRoot.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            		MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            int h = mAnchor.getWidth();
-            if(mAnchor.getWidth() > 0 && mRoot.getMeasuredHeight() > 0) {
-            	subPosition += (mRoot.getMeasuredHeight()*100)/mAnchor.getWidth();
-            	if(subPosition < 100) {
-            		mPlayer.setSubPosition(subPosition);
-            	}
-            }
             mShowing = true;
         }
         updatePausePlay();
@@ -473,15 +484,8 @@ public class MediaController extends FrameLayout {
                 mHandler.removeMessages(SHOW_PROGRESS);
                 mWindowManager.removeView(mDecor);
                 /* set subtitle position */
-                int subPosition = mPlayer.getSubPosition();
-                mRoot.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                		MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                int h = mAnchor.getWidth();
-                if(mAnchor.getWidth() > 0 && mRoot.getMeasuredHeight() > 0) {
-                	subPosition -= (mRoot.getMeasuredHeight()*100)/mAnchor.getWidth();
-                	if(subPosition > 0) {
-                		mPlayer.setSubPosition(subPosition);
-                	}
+                if(mInitSubPos < 100){
+                	mPlayer.setSubPosition(mInitSubPos);
                 }
             } catch (IllegalArgumentException ex) {
                 Log.w(TAG, "already removed");

@@ -20,7 +20,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.SubInfo;
@@ -87,8 +86,8 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
     private MediaPlayer mMediaPlayer = null;
     private int         mVideoWidth;
     private int         mVideoHeight;
-    private int         mSurfaceWidth;
-    private int         mSurfaceHeight;
+//    private int         mSurfaceWidth;
+//    private int         mSurfaceHeight;
     private MediaController mMediaController;
     private OnCompletionListener mOnCompletionListener;
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
@@ -543,7 +542,6 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
              * longer have a window, don't bother showing the user an error.
              */
             if (getWindowToken() != null) {
-                Resources r = mContext.getResources();
                 int messageId;
 
                 if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
@@ -620,8 +618,8 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
         public void surfaceChanged(SurfaceHolder holder, int format,
                                     int w, int h)
         {
-            mSurfaceWidth = w;
-            mSurfaceHeight = h;
+//            mSurfaceWidth = w;
+//            mSurfaceHeight = h;
             boolean isValidState =  (mTargetState == STATE_PLAYING);
             boolean hasValidSize = (mVideoWidth == w && mVideoHeight == h);
             if (mMediaPlayer != null && isValidState && hasValidSize) {
@@ -828,10 +826,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public SubInfo[] getSubList()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return null;
-    	
-        Log.d(TAG, "start getSubList ");
+    	}    		
     	return mMediaPlayer.getSubList();
 	}
 
@@ -843,10 +840,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getCurSub()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getCurSub ");
+    	}
     	return mMediaPlayer.getCurSub();
 	}
     
@@ -859,10 +855,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int switchSub(int index)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start switchSub ");
+    	}
     	return mMediaPlayer.switchSub(index);
 	}
     
@@ -875,10 +870,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubGate(boolean showSub)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        //Log.d(TAG, "start setSubGate ");
+    	}
     	return mMediaPlayer.setSubGate(showSub);
 	}
     
@@ -890,10 +884,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public boolean getSubGate()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return false;
-    	
-        Log.d(TAG, "start getSubGate ");
+    	}
     	return mMediaPlayer.getSubGate();
 	}
     
@@ -906,10 +899,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubColor(int color)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubColor ");
+    	}
     	return mMediaPlayer.setSubColor(color);
 	}
     
@@ -921,10 +913,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getSubColor()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getSubColor ");
+    	}
     	return mMediaPlayer.getSubColor();
     }
     
@@ -937,10 +928,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubFrameColor(int color)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubFrameColor ");
+    	}
     	return mMediaPlayer.setSubFrameColor(color);    	
     }
     
@@ -952,10 +942,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getSubFrameColor()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getSubFrameColor ");
+    	}
     	return mMediaPlayer.getSubFrameColor();    	
     }
 
@@ -968,10 +957,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubFontSize(int size)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubFontSize ");
+    	}
     	return mMediaPlayer.setSubFontSize(size);    	
     }
     
@@ -983,10 +971,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getSubFontSize()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getSubFontSize ");
+    	}
     	return mMediaPlayer.getSubFontSize();    	
     }
 
@@ -1000,10 +987,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubCharset(String charset)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubCharset ");
+    	}
     	return mMediaPlayer.setSubCharset(charset);    	
     }
     
@@ -1015,10 +1001,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
     */
     public String getSubCharset()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return null;
-    	
-        Log.d(TAG, "start getSubCharset ");
+    	}
     	return mMediaPlayer.getSubCharset();
     }
 
@@ -1031,10 +1016,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubPosition(int percent)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubPosition ");
+    	}
     	return mMediaPlayer.setSubPosition(percent);
     }
     
@@ -1046,10 +1030,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getSubPosition()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getSubPosition ");
+    	}
     	return mMediaPlayer.getSubPosition();
     }
 
@@ -1062,10 +1045,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setSubDelay(int time)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setSubDelay ");
+    	}
     	return mMediaPlayer.setSubDelay(time);
     }
     
@@ -1077,10 +1059,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getSubDelay()
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getSubDelay ");
+    	}
     	return mMediaPlayer.getSubDelay();
     }
 
@@ -1120,10 +1101,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      * @return ==0 means successful, !=0 means failed.
      */
     public int setAnaglaghType(int type) {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setAnaglaghType ");
+    	}
     	return mMediaPlayer.setAnaglaghType(type);
     }
 
@@ -1134,10 +1114,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      * @return the anaglagh type of the output. -1 means failed.
      */
     public int getAnaglaghType() {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getAnaglaghType ");
+    	}
     	return mMediaPlayer.getAnaglaghType();
     }
     
@@ -1149,10 +1128,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      * @return ==0 means successful, !=0 means failed.
      */
     public int setInputDimensionType(int type) {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start setInputDimensionType ");
+    	}
     	return mMediaPlayer.setInputDimensionType(type);
     }
     
@@ -1163,10 +1141,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      * @return the 3D picture format of the source file. -1 means failed.
      */
     public int getInputDimensionType() {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start getInputDimensionType ");
+    	}
     	return mMediaPlayer.getInputDimensionType();
     }
 
@@ -1179,10 +1156,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int setOutputDimensionType(int type)
     {
-        if(mMediaPlayer == null)
-    		return -1;
-    	
-        Log.d(TAG, "start setOutputDimensionType ");
+        if(mMediaPlayer == null){
+        	return -1;
+        }
     	return mMediaPlayer.setOutputDimensionType(type);
     }
     
@@ -1194,10 +1170,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int getOutputDimensionType()
     {
-        if(mMediaPlayer == null)
-    		return -1;
-    	
-        Log.d(TAG, "start getOutputDimensionType ");
+        if(mMediaPlayer == null){
+        	return -1;
+        }
     	return mMediaPlayer.getOutputDimensionType();
     }
      
@@ -1210,10 +1185,9 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      */
     public int switchTrack(int index)
     {
-    	if(mMediaPlayer == null)
+    	if(mMediaPlayer == null){
     		return -1;
-    	
-        Log.d(TAG, "start switchTrack ");
+    	}
     	return mMediaPlayer.switchTrack(index);
     }
 

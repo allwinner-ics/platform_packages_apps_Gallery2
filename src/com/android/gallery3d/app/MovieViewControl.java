@@ -25,7 +25,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IContentProvider;
@@ -37,8 +36,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -50,7 +47,6 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -73,7 +69,6 @@ import com.android.gallery3d.app.SlipSwitchDialog.OnSwitchResultListener;
 public class MovieViewControl implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
 VideoView.OnSubFocusItems{
 
-    @SuppressWarnings("unused")
     private static final String TAG = "MovieViewControl";
     private static final String STORE_NAME = "SubtitleSetting";
 
@@ -162,7 +157,8 @@ VideoView.OnSubFocusItems{
         return durationValue;
     }
 
-    public MovieViewControl(View rootView, Context context, Uri videoUri) {
+    @SuppressWarnings("deprecation")
+	public MovieViewControl(View rootView, Context context, Uri videoUri) {
         mContentResolver = context.getContentResolver();
         mVideoView = (VideoView) rootView.findViewById(R.id.surface_view);
         mProgressView = rootView.findViewById(R.id.progress_indicator);
@@ -187,7 +183,7 @@ VideoView.OnSubFocusItems{
         setDelayDialogParam();
         
         mPlayList = new ArrayList<String>();
-        createDispList(mUri, mContext);
+        createDispList();
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ON_AFTER_RELEASE, TAG);
         mWakeLock.setReferenceCounted(false);
@@ -230,7 +226,8 @@ VideoView.OnSubFocusItems{
             	if(mCurrentIndex >= 0 && size > 0)
             	{
             		mCurrentIndex = (mCurrentIndex+1)%size;
-            		mUri = Uri.fromFile(new File(mPlayList.get(mCurrentIndex)));
+            		String path = mPlayList.get(mCurrentIndex);
+            		mUri = Uri.fromFile(new File(path));
             		playFile();
             	}
             }
@@ -240,16 +237,9 @@ VideoView.OnSubFocusItems{
             	int size = mPlayList.size();
             	if(mCurrentIndex >= 0 && size > 0)
             	{
-            		if(size == 1) {
-            			mCurrentIndex = 0;
-            		}
-            		else if(mCurrentIndex == 0) {
-            			mCurrentIndex = size - 1;
-            		}
-            		else {
-            			mCurrentIndex = (mCurrentIndex-1)%size;
-            		}
-            		mUri = Uri.fromFile(new File(mPlayList.get(mCurrentIndex)));
+            		mCurrentIndex = (mCurrentIndex - 1 + size) % size;
+            		String path = mPlayList.get(mCurrentIndex);
+            		mUri = Uri.fromFile(new File(path));
             		playFile();
             	}
             }
@@ -357,7 +347,7 @@ VideoView.OnSubFocusItems{
         mCharsizeSeekBar = (SeekBar) dialogView.findViewById(R.id.seekbar_charsize_progress);
         //mCharsizeSeekBar.setBackgroundResource(android.R.id.progress);
         mCharsizeScheduleText = (TextView) dialogView.findViewById(R.id.charsize_schedule);
-        final int paddingLeft = mCharsizeScheduleText.getPaddingLeft();
+//        final int paddingLeft = mCharsizeScheduleText.getPaddingLeft();
         mCharsizeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			public void onProgressChanged(SeekBar seekBar, int progress,
@@ -1052,7 +1042,6 @@ VideoView.OnSubFocusItems{
     }
 
     public void onDestroy() {
-    	Log.e(TAG, "onDestroy()");
         mVideoView.stopPlayback();
         mBookmarkService.close();
     }
@@ -1069,12 +1058,11 @@ VideoView.OnSubFocusItems{
         return mToQuit;
     }
 
-    private void createDispList(Uri uri, Context mContext) {
+    private void createDispList() {
         Cursor c = null;
-        IContentProvider mMediaProvider = mContext.getContentResolver().acquireProvider("media");
-        Uri mVideoUri = Video.Media.getContentUri("external");
-        String[] VIDEO_PROJECTION = new String[] { Video.Media.DATA };
-        
+        IContentProvider mMediaProvider = mContentResolver.acquireProvider("media");
+        Uri mVideoUri = Video.Media.EXTERNAL_CONTENT_URI;
+        final String[] VIDEO_PROJECTION = new String[] {Video.Media.DATA};
         /* get playlist */
         try {
 			c = mMediaProvider.query(mVideoUri, VIDEO_PROJECTION, null, null, null);
@@ -1087,7 +1075,10 @@ VideoView.OnSubFocusItems{
             try {
                 while (c.moveToNext()) {
                     String path = c.getString(0);
-                    mPlayList.add(path);
+                    if(new File(path).exists()){
+//                    	Log.d(TAG, "#############createDispList(): path = " + path);
+                    	mPlayList.add(path);
+                    }
                 }
             } finally {
                 c.close();
@@ -1105,6 +1096,7 @@ VideoView.OnSubFocusItems{
             }
         }
     }
+    
     private BroadcastReceiver mBatteryReceiver = new BroadcastReceiver() {
 
 		@Override
