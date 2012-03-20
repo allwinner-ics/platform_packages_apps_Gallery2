@@ -93,7 +93,7 @@ public class DownThread implements Runnable {
             System.out.println("ClientProtocolException :downloading fail......");          
         } catch (IOException e) { 
               e.printStackTrace();   
-        	  System.out.println("IOException :downloading fail......");
+        	  Log.v(TAG,"IOException :downloading fail......");
         	  Message msg=new Message();
 		      msg.what=HANDLE_DOWNLOAD_FAIL;  
               handler.sendMessage(msg);

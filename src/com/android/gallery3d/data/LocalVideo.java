@@ -34,12 +34,14 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.provider.MediaStore.Video;
 import android.provider.MediaStore.Video.VideoColumns;
+import android.util.Log;
 
 import java.io.File;
 
 // LocalVideo represents a video in the local storage.
 public class LocalVideo extends LocalMediaItem {
-
+	private static final String TAG = "LocalVideo";
+	
     static final Path ITEM_PATH = Path.fromString("/local/video/item");
 
     // Must preserve order between these indices and the order of the terms in
@@ -174,11 +176,21 @@ public class LocalVideo extends LocalMediaItem {
     @Override
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
+        deleteFile();
         Uri baseUri = Video.Media.EXTERNAL_CONTENT_URI;
         mApplication.getContentResolver().delete(baseUri, "_id=?",
                 new String[]{String.valueOf(id)});
     }
 
+    private void deleteFile(){
+    	File file = new File(filePath);
+    	if(file.exists()){
+    		if(!file.delete()){
+    			Log.e(TAG, "delelt file failed");
+    		}
+    	}
+    }    
+    
     @Override
     public void rotate(int degrees) {
         // TODO

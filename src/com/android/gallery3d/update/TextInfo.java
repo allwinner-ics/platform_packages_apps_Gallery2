@@ -37,6 +37,7 @@ public class TextInfo {
 	public String[] release;
 	public String[] describe;
 	public Context mContext;
+	private boolean rightInfo=true;
 	
 	public String path;
 	public int length=0;
@@ -81,8 +82,13 @@ public class TextInfo {
 				 if (Pattern.matches("^$", line)) {
 				     continue;
 				    } 
-					readValue(line,num);
-					num++;
+				 if(!isRightInfo(line)) {
+			          Log.v(TAG,"txtInfo is wrong!");
+					  rightInfo=false;
+			          return;
+		             }
+				readValue(line,num);
+				num++;
 				}
 			readAgain.close();
 			file.delete();
@@ -224,6 +230,9 @@ public class TextInfo {
 	{
 		return apkName[num];
 	}
+	public boolean getRightInfo(){
+        return rightInfo;
+	}
 
 	public static String removeBlank(String str){ 
         StringBuilder sb = new StringBuilder(); 
@@ -240,6 +249,16 @@ public class TextInfo {
 
         return sb.toString(); 
      }
+	private boolean isRightInfo(String line){
+		 int a=line.indexOf("release=",0);
+		 int b=line.indexOf("describe=",0);
+		 int c=line.indexOf("URL1=",0);
+		 Log.v(TAG,"a="+a);
+		 Log.v(TAG,"b="+b);
+		 Log.v(TAG,"c="+c);
+		 if(a!=-1&&b!=-1&&c!=-1) return true;
+		   else return false;
+		}
 	public boolean isPackageExist(String packagename)
     {
     	PackageManager pm=mContext.getPackageManager();

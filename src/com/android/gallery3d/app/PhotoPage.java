@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -534,8 +535,12 @@ public class PhotoPage extends ActivityState
 
     public static void playVideo(Activity activity, Uri uri, String title) {
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW)
-                    .setDataAndType(uri, "video/*");
+            Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "video/*");
+            
+            //add by Bevis, for VideoPlay to create playlist
+            intent.putExtra(MediaStore.PLAYLIST_TYPE, MediaStore.PLAYLIST_TYPE_MEDIA_PROVIDER);
+        	intent.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, false);
+        	
             intent.putExtra(Intent.EXTRA_TITLE, title);
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {

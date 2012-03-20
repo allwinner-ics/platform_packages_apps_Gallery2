@@ -18,6 +18,41 @@
 */
 -->
 <resources>
+    <!-- video file filter -->
+    <array name="fileEndingVideo">
+		<item>avi</item>
+		<item>rmvb</item>
+		<item>mkv</item>
+		<item>m2ts</item>
+		<item>ts</item>
+		<item>dat</item>
+		<item>mp4</item>
+		<item>mpeg</item>
+		<item>vob</item>
+		<item>wmv</item>
+		<item>mov</item>
+		<item>mpg</item>
+		<item>m4v</item>
+		<item>rm</item>
+		<item>flv</item>
+		<item>pmp</item>
+		<item>asf</item>
+		<item>psr</item>
+		<item>3gp</item>
+		<item>ram</item>
+		<item>divx</item>
+		<item>m4p</item>
+		<item>m4b</item>
+		<item>f4v</item>
+		<item>3gpp</item>
+		<item>3g2</item>
+		<item>3gpp2</item>
+		<item>webm</item>
+		<item>tp</item>
+		<item>3dv</item>
+		<item>3dm</item>
+    </array>
+    
     <!-- subtitle setting.  The select subtitle. -->
     <string-array name="screen_select_values">
         <item>0</item>

@@ -175,7 +175,11 @@ public class CheckUpdate extends Service {
 		TextInfo textInfo=new TextInfo(target,mContext);
 		String scope;
 		String release;
-		String FIRMWARE;					
+		String FIRMWARE;	
+		if(!textInfo.getRightInfo()){
+			Log.v(TAG,"wrong txtInfo");
+			return;
+			}
 		int num=textInfo.discoverNew();
 		if(num!=-1){
           Log.v(TAG,"find new apk to download");

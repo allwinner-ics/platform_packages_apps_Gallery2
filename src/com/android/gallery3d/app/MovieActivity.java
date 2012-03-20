@@ -46,7 +46,7 @@ public class MovieActivity extends Activity {
         View rootView = findViewById(R.id.root);
         Intent intent = getIntent();
     	mFinishOnCompletion = intent.getBooleanExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
-        mControl = new MovieViewControl(rootView, this, intent.getData()) {
+        mControl = new MovieViewControl(rootView, this, intent) {
             @Override
             public void onCompletion() {
                 if (mFinishOnCompletion) {

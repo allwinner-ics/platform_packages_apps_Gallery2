@@ -118,43 +118,21 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        //Log.i("@@@@", "onMeasure");
         int width = getDefaultSize(mVideoWidth, widthMeasureSpec);
         int height = getDefaultSize(mVideoHeight, heightMeasureSpec);
         if(mVideoWidth > 0 && mVideoHeight > 0) {
-        	setvideoSize();
+        	setvideoSize(width, height);
         } else {
         	setMeasuredDimension(width, height);
-        }
-        
-        //if (mVideoWidth > 0 && mVideoHeight > 0) {
-        //    if ( mVideoWidth * height  > width * mVideoHeight ) {
-        //        //Log.i("@@@", "image too tall, correcting");
-        //        height = width * mVideoHeight / mVideoWidth;
-        //    } else if ( mVideoWidth * height  < width * mVideoHeight ) {
-        //        //Log.i("@@@", "image too wide, correcting");
-        //        width = height * mVideoWidth / mVideoHeight;
-        //    } else {
-        //        //Log.i("@@@", "aspect ratio is correct: " +
-        //                //width+"/"+height+"="+
-        //                //mVideoWidth+"/"+mVideoHeight);
-        //    }
-        //}
-        ////Log.i("@@@@@@@@@@", "setting size: " + width + 'x' + height);
-        //setMeasuredDimension(width, height);
+        }        
     }
 
-    private void setvideoSize() {
-    	int width = ((RelativeLayout)getParent()).getMeasuredWidth();
-    	int height = ((RelativeLayout)getParent()).getMeasuredHeight();
-    	
+    private void setvideoSize(int width, int height) {
     	switch(mZoomMode) {
     		case ZOOM_FULL_SCREEN_VIDEO_RATIO: {
     			if ( mVideoWidth * height  > width * mVideoHeight ) {
-                    //Log.i("@@@", "image too tall, correcting");
     				height = width * mVideoHeight / mVideoWidth;
                 } else if ( mVideoWidth * height  < width * mVideoHeight ) {
-                    //Log.i("@@@", "image too wide, correcting");
                 	width = height * mVideoWidth / mVideoHeight;
                 }
     			break;
@@ -192,18 +170,8 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
     		default:
     			break;
     	}
-    	
-    	//if(mTargetState == STATE_PLAYING) {
-    	//	// blench a hardware bug
-    	//	pause();
-    	//	getHolder().setFixedSize(width, height);
-        //	setMeasuredDimension(width, height);
-        //	start();
-    	//} else 
-    	{
-    		getHolder().setFixedSize(width, height);
-        	setMeasuredDimension(width, height);
-    	}
+    	Log.d(TAG, "#################setvideoSize(), result: width = " + width + ", height = " + height);
+        setMeasuredDimension(width, height);
     }
     public int resolveAdjustedSize(int desiredSize, int measureSpec) {
         int result = desiredSize;
@@ -232,20 +200,14 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
                 break;
         }
         return result;
-}
+    }
 
     private void initVideoView() {
-        mVideoWidth = 0;
-        mVideoHeight = 0;
         getHolder().addCallback(mSHCallback);
-        getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+//        getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         setFocusable(true);
         setFocusableInTouchMode(true);
         requestFocus();
-        mCurrentState = STATE_IDLE;
-        mTargetState  = STATE_IDLE;
-	//setBackgroundColor(0xff010305);
-	//setBackgroundColor(0xff000000);
     }
 
     public void setVideoPath(String path) {
@@ -305,92 +267,6 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
             mMediaPlayer.setDisplay(mSurfaceHolder);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
-            //{
-            //    int inputType;
-            //    int anaglagh;
-            //    
-            //    inputType = MediaPlayer.INPUT_DIMENSION_TYPE_2D;
-            //    next : {
-            //        String scheme = mUri.getScheme();
-            //        if(scheme == null || !scheme.equals("file"))
-            //            break next;
-            //        String path = mUri.getPath();
-            //        if(path == null)
-            //            break next;
-            //        String[] substr = path.split("\\.");
-            //        if(substr == null)
-            //            break next;
-            //
-            //        int j;
-            //        for(j = 0; j < substr.length; j++){
-            //            Log.d(TAG, "substr " + j + " is " + substr[j]);
-            //            if(substr[j].equals("FS")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL;
-            //                break;
-            //            }else if(substr[j].equals("TBH")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF ;
-            //                break;
-            //            }else if(substr[j].equals("TBF")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL;
-            //                break;
-            //            }else if(substr[j].equals("BTH")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF;
-            //                break;
-            //            }else if(substr[j].equals("BTF")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL;
-            //                break;
-            //            }else if(substr[j].equals("LRH")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
-            //                break;
-            //            }else if(substr[j].equals("SBS")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF;
-            //                break;
-            //            }else if(substr[j].equals("LRF")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL;
-            //                break;
-            //            }else if(substr[j].equals("RLH")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF ;
-            //                break;
-            //            }else if(substr[j].equals("RLF")){
-            //                inputType = MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //    
-            //    if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF)
-            //        anaglagh = MediaPlayer.ANAGLAGH_TYPE_OPTIMIZED;
-            //    else
-            //        anaglagh = MediaPlayer.ANAGLAGH_TYPE_DISABLE;
-            //        
-            //    int settingOutputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_2D_ORGINAL;
-            //    int outputType;
-            //    if(   inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_TOP_BOTTOM_FULL
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_BOTTOM_TOP_FULL)
-            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_TOP_BOTTOM;
-            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LEFT_RIGHT_FULL
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_HALF
-            //       || inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_RIGHT_LEFT_FULL )
-            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
-            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_FRAME_SEQUENTIAL )
-            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LEFT_RIGHT;
-            //    else if (inputType == MediaPlayer.INPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED )
-            //       outputType = MediaPlayer.OUTPUT_DIMENSION_TYPE_3D_LINE_INTERLEAVED;
-            //    else 
-            //       outputType = settingOutputType;
-            //       
-            //    mMediaPlayer.setAnaglaghType(anaglagh);
-            //    mMediaPlayer.setInputDimensionType(inputType);
-            //    mMediaPlayer.setOutputDimensionType(outputType);
-            //
-            //}
-
             mMediaPlayer.prepareAsync();
             // we don't set the target state here either, but preserve the
             // target state that was there before.
@@ -425,8 +301,7 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
     private void attachMediaController() {
         if (mMediaPlayer != null && mMediaController != null) {
             mMediaController.setMediaPlayer(this);
-            View anchorView = this.getParent() instanceof View ?
-                    (View)this.getParent() : this;
+            View anchorView = this.getParent() instanceof View? (View)this.getParent() : this;
             mMediaController.setAnchorView(anchorView);
             mMediaController.setEnabled(isInPlaybackState());
         }
@@ -437,8 +312,8 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
             public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
                 mVideoWidth = mp.getVideoWidth();
                 mVideoHeight = mp.getVideoHeight();
-                if (mVideoWidth != 0 && mVideoHeight != 0) {
-                	setvideoSize();		// getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+                if (mVideoWidth > 0 && mVideoHeight > 0) {
+                	getHolder().setFixedSize(mVideoWidth, mVideoHeight);
                 }
             }
     };
@@ -475,25 +350,19 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
             if (seekToPosition != 0) {
                 seekTo(seekToPosition);
             }
-            if (mVideoWidth != 0 && mVideoHeight != 0) {
-                //Log.i("@@@@", "video size: " + mVideoWidth +"/"+ mVideoHeight);
-            	setvideoSize();		// getHolder().setFixedSize(mVideoWidth, mVideoHeight);
-                //if (mSurfaceWidth == mVideoWidth && mSurfaceHeight == mVideoHeight) {
-                    // We didn't actually change the size (it was already at the size
-                    // we need), so we won't get a "surface changed" callback, so
-                    // start the video here instead of in the callback.
-                    if (mTargetState == STATE_PLAYING) {
-                        start();
-                        if (mMediaController != null) {
-                            mMediaController.show();
-                        }
-                    } else if (!isPlaying() &&
-                               (seekToPosition != 0 || getCurrentPosition() > 0)) {
-                       if (mMediaController != null) {
-                           // Show the media controls when we're paused into a video and make 'em stick.
-                           mMediaController.show(0);
-                       }
-                   //}
+            if (mVideoWidth > 0 && mVideoHeight > 0) {
+            	getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+            	
+                if (mTargetState == STATE_PLAYING) {
+                	start();
+                	if (mMediaController != null) {
+                		mMediaController.show();
+                	}
+                } else if (!isPlaying() && (seekToPosition != 0 || getCurrentPosition() > 0)) {
+                	if (mMediaController != null) {
+                		// Show the media controls when we're paused into a video and make 'em stick.
+                		mMediaController.show(0);
+                	}
                 }
             } else {
                 // We don't know the video size yet, but should start anyway.
@@ -615,9 +484,7 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
 
     SurfaceHolder.Callback mSHCallback = new SurfaceHolder.Callback()
     {
-        public void surfaceChanged(SurfaceHolder holder, int format,
-                                    int w, int h)
-        {
+        public void surfaceChanged(SurfaceHolder holder, int format, int w, int h){
 //            mSurfaceWidth = w;
 //            mSurfaceHeight = h;
             boolean isValidState =  (mTargetState == STATE_PLAYING);
@@ -637,18 +504,18 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
             }
         }
 
-        public void surfaceCreated(SurfaceHolder holder)
-        {
+        public void surfaceCreated(SurfaceHolder holder){
             mSurfaceHolder = holder;
-                openVideo();
+            openVideo();
         }
 
-        public void surfaceDestroyed(SurfaceHolder holder)
-        {
+        public void surfaceDestroyed(SurfaceHolder holder){
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null;
-            if (mMediaController != null) mMediaController.hide();
-                release(true);
+            if (mMediaController != null){
+            	mMediaController.hide();
+            }
+            release(true);
         }
     };
 
@@ -1200,7 +1067,7 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
     public void setZoomMode(int mode) {
     	mZoomMode = mode;
     	if (mVideoWidth > 0 && mVideoHeight > 0) {
-    		setvideoSize();
+    		getHolder().setFixedSize(mVideoWidth, mVideoHeight);
     	}
     }
     

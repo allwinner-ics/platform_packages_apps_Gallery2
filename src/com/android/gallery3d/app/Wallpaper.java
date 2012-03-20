@@ -92,7 +92,8 @@ public class Wallpaper extends Activity {
                         .putExtra(CropImage.KEY_SPOTLIGHT_Y, spotlightY)
                         .putExtra(CropImage.KEY_SCALE, true)
                         .putExtra(CropImage.KEY_NO_FACE_DETECTION, true)
-                        .putExtra(CropImage.KEY_SET_AS_WALLPAPER, true);
+                        .putExtra(CropImage.KEY_SET_AS_WALLPAPER, true)
+                        .putExtra(CropImage.KEY_SCALE_UP_IF_NEEDED,true);
                 startActivity(request);
                 finish();
             }

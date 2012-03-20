@@ -41,11 +41,11 @@
         
         <ImageButton android:id="@+id/vDec" style="@style/MediaButton.VolumeDec" />
         <ImageButton android:id="@+id/vInc" style="@style/MediaButton.VolumeInc" />
-        <ImageButton android:id="@+id/prev" style="@style/MediaButton.Previous" />
+        <ImageButton android:id="@+id/prev" style="@style/MediaButton.Previous" android:visibility="gone"/>
         <ImageButton android:id="@+id/rew" style="@style/MediaButton.Rew" android:visibility="gone" />
         <ImageButton android:id="@+id/pause" style="@style/MediaButton.Play" />
         <ImageButton android:id="@+id/ffwd" style="@style/MediaButton.Ffwd" android:visibility="gone" />
-        <ImageButton android:id="@+id/next" style="@style/MediaButton.Next" />
+        <ImageButton android:id="@+id/next" style="@style/MediaButton.Next" android:visibility="gone"/>
         <ImageButton android:id="@+id/set" style="@style/MediaButton.Set" />
         <ImageButton android:id="@+id/back" style="@style/MediaButton.Back" />
 

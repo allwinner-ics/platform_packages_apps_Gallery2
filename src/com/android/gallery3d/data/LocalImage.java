@@ -243,11 +243,21 @@ public class LocalImage extends LocalMediaItem {
     @Override
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
+        deleteFile();
         Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         mApplication.getContentResolver().delete(baseUri, "_id=?",
                 new String[]{String.valueOf(id)});
     }
 
+    private void deleteFile(){
+    	File file = new File(filePath);
+    	if(file.exists()){
+    		if(!file.delete()){
+    			Log.e(TAG, "delelt file failed");
+    		}
+    	}
+    }
+    
     private static String getExifOrientation(int orientation) {
         switch (orientation) {
             case 0:

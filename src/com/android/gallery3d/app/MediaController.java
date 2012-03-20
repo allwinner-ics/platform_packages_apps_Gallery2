@@ -89,7 +89,6 @@ public class MediaController extends FrameLayout {
     private DateFormat 			mDateFormat;
     private boolean             mShowing, mHolding;
     private boolean             mDragging;
-    private boolean 			mUriType = false;	// true:native	false:network
     private static final int    sDefaultTimeout = 5000;
     private static final int    FADE_OUT = 1;
     private static final int    SHOW_PROGRESS = 2;
@@ -97,6 +96,7 @@ public class MediaController extends FrameLayout {
     private int mInitSubPos, mUpSubPos;
     StringBuilder                mFormatBuilder;
     Formatter                    mFormatter;
+    private boolean 			prevNextVisible = false;
     
     private View.OnClickListener mSetListener;
     private View.OnClickListener mBackListener;
@@ -276,11 +276,17 @@ public class MediaController extends FrameLayout {
 
         mNextButton = (android.widget.ImageButton) v.findViewById(R.id.next);
         if (mNextButton != null) {
-            mNextButton.setOnClickListener(mNextListener);
+        	if(prevNextVisible){
+        		mNextButton.setVisibility(VISIBLE);
+        		mNextButton.setOnClickListener(mNextListener);        		
+        	}
         }
         mPrevButton = (android.widget.ImageButton) v.findViewById(R.id.prev);
         if (mPrevButton != null) {
-            mPrevButton.setOnClickListener(mPrevListener);
+        	if(prevNextVisible){
+        		mPrevButton.setVisibility(VISIBLE);
+        		mPrevButton.setOnClickListener(mPrevListener);        		
+        	}
         }
      
         mSetButton = (android.widget.ImageButton) v.findViewById(R.id.set);
@@ -704,10 +710,10 @@ public class MediaController extends FrameLayout {
             	mRewButton.setEnabled(enabled);
         	}
         	if (mNextButton != null) {
-            	mNextButton.setEnabled(mUriType&enabled);
+            	mNextButton.setEnabled(enabled);
         	}
         	if (mPrevButton != null) {
-        		mPrevButton.setEnabled(mUriType&enabled);
+        		mPrevButton.setEnabled(enabled);
         	}
         	if (mProgress != null) {
         		mProgress.setEnabled(enabled);
@@ -762,9 +768,8 @@ public class MediaController extends FrameLayout {
     	}
     }
     
-    // use to set prev/next enable
-    public void setUriType(boolean type) {
-    	mUriType = type;
+    public void setPrevNextVisible(boolean visible) {
+    	prevNextVisible = visible;
     };
  
     public void setSetSettingsEnable() {

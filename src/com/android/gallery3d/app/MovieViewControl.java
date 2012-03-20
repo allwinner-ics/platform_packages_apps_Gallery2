@@ -19,6 +19,7 @@ package com.android.gallery3d.app;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -47,6 +48,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Video;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -106,6 +108,7 @@ VideoView.OnSubFocusItems{
 	private boolean mOnPause = false;
 	int mBookMark, mDuration;
     private int mCurrentIndex = 0;
+    private String mPlayListType;
     private ArrayList<String> mPlayList;
 
     private BookmarkService mBookmarkService;
@@ -157,14 +160,13 @@ VideoView.OnSubFocusItems{
         return durationValue;
     }
 
-    @SuppressWarnings("deprecation")
-	public MovieViewControl(View rootView, Context context, Uri videoUri) {
+	public MovieViewControl(View rootView, Context context, Intent intent) {
         mContentResolver = context.getContentResolver();
         mVideoView = (VideoView) rootView.findViewById(R.id.surface_view);
         mProgressView = rootView.findViewById(R.id.progress_indicator);
 
         mContext = context;
-        mUri = Uri2File2Uri(videoUri);
+        mUri = Uri2File2Uri(intent.getData());
         mRes = mContext.getResources();
         sp = mContext.getSharedPreferences(STORE_NAME, Context.MODE_PRIVATE);
 		editor = sp.edit();
@@ -182,8 +184,6 @@ VideoView.OnSubFocusItems{
         setCharsizeDialogParam();
         setDelayDialogParam();
         
-        mPlayList = new ArrayList<String>();
-        createDispList();
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ON_AFTER_RELEASE, TAG);
         mWakeLock.setReferenceCounted(false);
@@ -196,11 +196,26 @@ VideoView.OnSubFocusItems{
         setImageButtonListener(mMediaController);
         mVideoView.setMediaController(mMediaController);
         mMediaController.setFilePathTextView(mUri.getPath());
-        if(scheme != null && scheme.equalsIgnoreCase("file")) {
-        	mMediaController.setUriType(true);		// prev/next button visibility
-        } else {
-        	mMediaController.setUriType(false);		// prev/next button invisible
-        }
+
+        /* create playlist */
+        mPlayListType =  intent.getStringExtra(MediaStore.PLAYLIST_TYPE);
+        mPlayList = new ArrayList<String>();
+        if(mPlayListType != null) {
+        	if(mPlayListType.equalsIgnoreCase(MediaStore.PLAYLIST_TYPE_CUR_FOLDER)) {
+         		/* create playlist from current folder */
+         		createFolderDispList();
+        	} else if(mPlayListType.equalsIgnoreCase(MediaStore.PLAYLIST_TYPE_MEDIA_PROVIDER)) {
+        		/* create playlist from mediaprovider */
+        		createMediaProviderDispList(mUri, mContext);
+        	}
+        	
+        	if(scheme != null && scheme.equalsIgnoreCase("file")) {
+	         	mMediaController.setPrevNextVisible(true);		// make prev/next button visible
+        	}
+        	else{
+        		Log.w(TAG,"############scheme = " + scheme);
+        	}
+        }        
         
         mMediaController.setVolumeIncListener(new View.OnClickListener() {
 			public void onClick(View arg0) {
@@ -254,12 +269,11 @@ VideoView.OnSubFocusItems{
 
         mBookmarkService = new BookmarkService(mContext);
         final int bookmark = getBookmark();
-        if (bookmark != 0) {
+        if (bookmark > 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(R.string.resume_playing_title);
-            builder
-                    .setMessage(String
-                            .format(context.getString(R.string.resume_playing_message), formatDuration(context, bookmark)));
+            builder.setMessage(String.format(context.getString(R.string.resume_playing_message), 
+            		formatDuration(context, bookmark)));
             builder.setOnCancelListener(new OnCancelListener() {
                 public void onCancel(DialogInterface dialog) {
                     onCompletion();
@@ -277,13 +291,11 @@ VideoView.OnSubFocusItems{
                 }
             });
             builder.show();
-
-            deleteBookmark();
         } else {
             mVideoView.start();
         }
     }
-    
+        
     private Uri Uri2File2Uri(Uri videoUri) {
     	String path = null;
     	Cursor c = null;
@@ -317,6 +329,85 @@ VideoView.OnSubFocusItems{
         }
     }
     
+    private void createFolderDispList() {
+    	String fileNameText, filePathText;
+    	File filePath;
+    	
+    	String[] fileEndingVideo = mRes.getStringArray(R.array.fileEndingVideo);
+    	fileNameText = mUri.getPath();
+    	int index = fileNameText.lastIndexOf('/');
+    	if(index >= 0) {
+    		filePathText = fileNameText.substring(0, index);
+    		filePath = new File(filePathText);
+    		File[] fileList = filePath.listFiles();
+    		if(fileList != null && filePath.isDirectory()) {
+    			for(File currenFile : fileList) {
+    				String fileName = currenFile.getName();
+    				int indexPoint = fileName.lastIndexOf('.');
+    				if(indexPoint > 0 && currenFile.isFile()) {
+    					String fileEnd = fileName.substring(indexPoint+1);
+    					for(int i = 0;i < fileEndingVideo.length; i++) {
+        					if(fileEnd.equalsIgnoreCase(fileEndingVideo[i])) {
+        						mPlayList.add(currenFile.getPath());
+        						break;
+        					}
+        				}
+    				}
+    			}
+    		}
+    	}
+    	Collections.sort(mPlayList);
+
+        /* get current index */
+        mCurrentIndex = 0;
+        String mCurrentPath = mUri.getPath();
+        for(int i = 0;i < mPlayList.size();i++) {
+        	if( mCurrentPath.equalsIgnoreCase(mPlayList.get(i)) ) {
+        		mCurrentIndex = i;
+        		break;
+        	}
+        }
+    }
+
+    private void createMediaProviderDispList(Uri uri, Context mContext) {
+        Cursor c = null;
+        IContentProvider mMediaProvider = mContext.getContentResolver().acquireProvider("media");
+        Uri mVideoUri = Video.Media.getContentUri("external");
+        String[] VIDEO_PROJECTION = new String[] { Video.Media.DATA };
+        
+        /* get playlist */
+        try {
+			c = mMediaProvider.query(mVideoUri, VIDEO_PROJECTION, null, null, null);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        if(c != null)
+        {
+            try {
+                while (c.moveToNext()) {
+                    String path = c.getString(0);
+                    if(new File(path).exists()){
+                    	mPlayList.add(path);
+                    }
+                }
+            } finally {
+                c.close();
+                c = null;
+            }
+            
+            /* get current index */
+            mCurrentIndex = 0;
+            String mCurrentPath = mUri.getPath();
+            for(int i = 0;i < mPlayList.size();i++) {
+            	if( mCurrentPath.equalsIgnoreCase(mPlayList.get(i)) ) {
+            		mCurrentIndex = i;
+            		break;
+            	}
+            }
+        }
+    }
+
     private void SetListDialogParam() {
         mDialogView = View.inflate(mContext, R.layout.dialog_list, null);
         mDialogTitle = (TextView) mDialogView.findViewById(R.id.list_title);
@@ -369,7 +460,6 @@ VideoView.OnSubFocusItems{
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub
 				mListFocus = mCharsizeSeekBar.getProgress() + mMinValue;
-    			Log.i(TAG, "*********** change the sub charsize to: "+mListFocus);
 				mVideoView.setSubFontSize(mListFocus);
 				editor.putInt(mControlFocus, mListFocus);
 				editor.commit();
@@ -419,7 +509,6 @@ VideoView.OnSubFocusItems{
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub
 				mListFocus = 50 * mDelaySeekBar.getProgress() + mMinValue;
-    			Log.i(TAG, "*********** change the sub delay to: "+mListFocus);
 				mVideoView.setSubDelay(mListFocus);
 			}
         	
@@ -444,27 +533,21 @@ VideoView.OnSubFocusItems{
     }
     
     private void SetCharsizeText(int offset) {
-    	Log.i(TAG+" Set charsize text", "*********** offset: "+offset+", mMinValue:"+mMinValue);
 		int max = mCharsizeSeekBar.getMax();
 		int layout_width =  mCharsizeSeekBar.getLayoutParams().width;
 		layout_width = diptopx(layout_width);
 		int textPos = offset * layout_width / max;
 		mCharsizeScheduleText.setPadding(mCharsizePaddingLeft+textPos, 0, 0, 0);
 		mCharsizeScheduleText.setText(String.valueOf(offset+mMinValue));
-    	Log.i(TAG+" Setcharsize text", "*********** textPos: "+textPos+", max:"+max);
-		//mSeekBar.setProgress(textPos);
     }
     
     private void SetDelayText(int offset) {
-    	Log.i(TAG+" Set delay text", "*********** offset: "+offset+", mMinValue:"+mMinValue);
 		int max = 50 * mDelaySeekBar.getMax();
 		int layout_width =  mDelaySeekBar.getLayoutParams().width;
 		layout_width = diptopx(layout_width);
 		int textPos = offset * layout_width / max;
 		mDelayScheduleText.setPadding(mDelayPaddingLeft+textPos, 0, 0, 0);
 		mDelayScheduleText.setText(String.valueOf(offset+mMinValue));
-    	Log.i(TAG+" Set delay text", "*********** textPos: "+textPos+", max:"+max);
-		//mSeekBar.setProgress(textPos);
     }
     
     private int diptopx(int dipValue) {
@@ -548,7 +631,6 @@ VideoView.OnSubFocusItems{
 				ret = mVideoView.switchSub(position); 
         		if(ret == 0) {
         			mListFocus = position;
-        			Log.i(TAG, "*********** change the sub select focus to: "+mListFocus);
         		} else {
         			Log.w(TAG, "*********** change the sub select failed !");
         		}
@@ -558,7 +640,6 @@ VideoView.OnSubFocusItems{
         		ret = mVideoView.setSubCharset(listCharSet[position]); 
         		if(ret == 0) {
         			mListFocus = position;
-        			Log.i(TAG, "*********** change the sub charset focus to: "+mListFocus);
         		} else {
         			Log.w(TAG, "*********** change the sub charset failed !");
         		}
@@ -567,7 +648,6 @@ VideoView.OnSubFocusItems{
         		ret = mVideoView.switchTrack(position); 
         		if(ret == 0) {
         			mListFocus = position;
-        			Log.i(TAG, "*********** change the sub track focus to: "+mListFocus);
         		} else {
         			Log.w(TAG, "*********** change the sub track failed !");
         		}
@@ -582,8 +662,6 @@ VideoView.OnSubFocusItems{
         		/* zoom mode */
         		mListFocus = position;
         		mVideoView.setZoomMode(position); 
-        		Log.i(TAG, "*********** change the zoom mode focus to: "+mListFocus);
-
 	        	editor.putInt(EDITOR_ZOOM, position);
 				editor.commit();
         	}
@@ -681,7 +759,6 @@ VideoView.OnSubFocusItems{
 
     			public void OnSwitchResult(boolean switchOn) {
     				// TODO Auto-generated method stub
-    				Log.e(TAG, "switch result: " + switchOn);
     				if(mSlipSwitch.isShowing()){
     					mSlipSwitch.dismiss();
     				}
@@ -778,7 +855,6 @@ VideoView.OnSubFocusItems{
                 
     			public void colorChanged(int color) {
     				// TODO Auto-generated method stub
-    				Log.e(TAG, "color changed:" + color);
     				if(mColorPicker.isShowing()){
     					mColorPicker.dismiss();
     				}
@@ -789,8 +865,7 @@ VideoView.OnSubFocusItems{
     				editor.commit(); 
     			}	
             };
-            int curColor = mVideoView.getSubColor();            
-            Log.d(TAG, "*********** init ColorPickerDialog:"+curColor);
+            int curColor = mVideoView.getSubColor();
             mColorPicker = new ColorPickerDialog(mContext, l, curColor);
             mColorPicker.setCancelListener(new OnCancelListener(){
     			public void onCancel(DialogInterface arg0) {
@@ -807,7 +882,6 @@ VideoView.OnSubFocusItems{
         	mControlFocus = EDITOR_SUBCHARSIZE;
 
         	int currentCharSize =  mVideoView.getSubFontSize();
-			Log.d(TAG, "*********** last Offset:"+currentCharSize);
 			mDialogTitle.setText(R.string.charsize_title);
 			mMinValue = mRes.getInteger(R.integer.min_value_charsize);
 			mCharsizeSeekBar.setMax(mRes.getInteger(R.integer.max_step_charsize));
@@ -823,7 +897,6 @@ VideoView.OnSubFocusItems{
         	mControlFocus = EDITOR_SUBOFFSET;
 
         	int currentOffset =  mVideoView.getSubPosition();
-			Log.d(TAG, "*********** last Offset:"+currentOffset);
 			mDialogTitle.setText(R.string.offset_title);
 			mMinValue = mRes.getInteger(R.integer.min_value_suboffset);
 			mListSeekBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.seek_charsize_progress));
@@ -840,7 +913,6 @@ VideoView.OnSubFocusItems{
         	mControlFocus = EDITOR_SUBDELAY;
 
         	int currentDelay =  mVideoView.getSubDelay();
-			Log.d(TAG, "*********** last Delay:"+currentDelay);
 			mMinValue = mRes.getInteger(R.integer.min_value_subdelay);
 			mDelaySeekBar.setMax(mRes.getInteger(R.integer.max_step_subdelay)/50);
 			mDelaySeekBar.setProgress((currentDelay-mMinValue)/50);
@@ -948,7 +1020,6 @@ VideoView.OnSubFocusItems{
 
     	/* sub color */
 		int clor = sp.getInt(EDITOR_SUBCOLOR, Color.WHITE);
-		//Log.d(TAG, "*********** init setSubFocusItem:"+clor);
 		mVideoView.setSubColor(clor);
 
     	/* sub char size */
@@ -972,10 +1043,10 @@ VideoView.OnSubFocusItems{
 }
     
     private static boolean uriSupportsBookmarks(Uri uri) {
-	if (uri.getScheme() == null)
-	{
-		return false;
-	}
+    	if (uri.getScheme() == null)
+    	{
+    		return false;
+    	}
     	return ("file".equalsIgnoreCase(uri.getScheme()));
     }
     
@@ -993,25 +1064,27 @@ VideoView.OnSubFocusItems{
         }
         
         String path = mUri.getPath();
-        if( mBookmarkService.findByPath(path) != 0 ) {
+        if( mBookmarkService.findByPath(path) > 0 ) {
         	mBookmarkService.update(path, bookmark);
         } else {
         	mBookmarkService.save(path, bookmark);
         }
-
     }
 
     public void onPause() {
         mOnPause = true;
         mHandler.removeCallbacksAndMessages(null);
         mCurrentTrackSave = mVideoView.getCurTrack();
-        Log.e(TAG, "onPause(), mCurrentTrackSave = " + mCurrentTrackSave);
         mCurrentSubSave = mVideoView.getCurSub();
         mResumeableTime = System.currentTimeMillis() + RESUMEABLE_TIMEOUT;
         mVideoPosition = mVideoView.getCurrentPosition();
+        int duration = mVideoView.getDuration();
         // current time > 10s and save current position
-        if(mVideoPosition > 10* 1000) {
-        	setBookmark(mVideoPosition);
+        if(mVideoPosition > 10 * 1000 && duration - mVideoPosition > 10 * 1000) {
+        	setBookmark(mVideoPosition - 3 * 1000);
+        }
+        else{
+        	deleteBookmark();
         }
         if(mListDialog != null) {
         	mListDialog.dismiss();
@@ -1028,7 +1101,6 @@ VideoView.OnSubFocusItems{
     }
 
     public void onResume() {
-    	Log.e(TAG, "onResume()");
         if (mOnPause) {
             mVideoView.seekTo(mVideoPosition);
             mVideoView.resume();
@@ -1056,45 +1128,6 @@ VideoView.OnSubFocusItems{
     
     public boolean toQuit() {
         return mToQuit;
-    }
-
-    private void createDispList() {
-        Cursor c = null;
-        IContentProvider mMediaProvider = mContentResolver.acquireProvider("media");
-        Uri mVideoUri = Video.Media.EXTERNAL_CONTENT_URI;
-        final String[] VIDEO_PROJECTION = new String[] {Video.Media.DATA};
-        /* get playlist */
-        try {
-			c = mMediaProvider.query(mVideoUri, VIDEO_PROJECTION, null, null, null);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        if(c != null)
-        {
-            try {
-                while (c.moveToNext()) {
-                    String path = c.getString(0);
-                    if(new File(path).exists()){
-//                    	Log.d(TAG, "#############createDispList(): path = " + path);
-                    	mPlayList.add(path);
-                    }
-                }
-            } finally {
-                c.close();
-                c = null;
-            }
-            
-            /* get current index */
-            mCurrentIndex = 0;
-            String mCurrentPath = mUri.getPath();
-            for(int i = 0;i < mPlayList.size();i++) {
-            	if( mCurrentPath.equalsIgnoreCase(mPlayList.get(i)) ) {
-            		mCurrentIndex = i;
-            		break;
-            	}
-            }
-        }
     }
     
     private BroadcastReceiver mBatteryReceiver = new BroadcastReceiver() {
