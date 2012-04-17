@@ -1065,9 +1065,13 @@ public class VideoView extends SurfaceView implements MediaPlayerControl {
      * @param mode the zoom¡¯s index in the zoom list¡£
      */
     public void setZoomMode(int mode) {
+    	if(mode == mZoomMode){
+    		return;
+    	}
     	mZoomMode = mode;
     	if (mVideoWidth > 0 && mVideoHeight > 0) {
     		getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+    		requestLayout();
     	}
     }
     

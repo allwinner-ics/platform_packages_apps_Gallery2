@@ -121,7 +121,13 @@ public class LocalAlbum extends MediaSet {
         LocalMediaItem item = (LocalMediaItem) dataManager.peekMediaObject(path);
         if (item == null) {
             if (isImage) {
-                item = new LocalImage(path, app, cursor);
+				try {
+					item = new LocalImage(path, app, cursor);
+				}
+				catch(RuntimeException e) {
+					item = null;
+					Log.d("loadOrUpdateItem", " " + e);
+				}
             } else {
                 item = new LocalVideo(path, app, cursor);
             }

@@ -40,6 +40,7 @@
             android:text="@string/redeye"
             style="@style/EffectLabel"/>
     </com.android.gallery3d.photoeditor.actions.RedEyeAction>
+<!--	remove unsupported Effect. by Bevis.
     <com.android.gallery3d.photoeditor.actions.FaceliftAction style="@style/Effect">
         <ImageButton
             android:id="@+id/effect_button"
@@ -60,6 +61,7 @@
             android:text="@string/facetan"
             style="@style/EffectLabel"/>
     </com.android.gallery3d.photoeditor.actions.FaceTanAction>
+-->
     <com.android.gallery3d.photoeditor.actions.StraightenAction style="@style/Effect"
         android:tag="@string/straighten_tooltip">
         <ImageButton

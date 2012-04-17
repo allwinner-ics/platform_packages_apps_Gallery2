@@ -100,8 +100,17 @@ class LocalSource extends MediaSource {
                 return new LocalMergeAlbum(
                         path, comp, new MediaSet[] {imageSet, videoSet});
             }
-            case LOCAL_IMAGE_ITEM:
-                return new LocalImage(path, mApplication, mMatcher.getIntVar(0));
+            case LOCAL_IMAGE_ITEM: {
+					LocalImage li = null;
+					try {
+						li = new LocalImage(path, mApplication, mMatcher.getIntVar(0));
+					} 
+					catch(RuntimeException e) {
+						li = null;
+						Log.d("LOCAL_IMAGE_ITEM", " " + e);
+					}
+					return li;
+			   }
             case LOCAL_VIDEO_ITEM:
                 return new LocalVideo(path, mApplication, mMatcher.getIntVar(0));
             default:
